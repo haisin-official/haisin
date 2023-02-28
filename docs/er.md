@@ -5,8 +5,8 @@ erDiagram
 
 %% ユーザー情報
 users {
-  uuid uuid PK
-  string email
+	uuid uuid PK
+	string email
 	string slug
 	string ga
 }
