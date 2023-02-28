@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  go:
+    container_name: haisin_backend
+    build:
+      context: ./docker/${GO_ENV}/app
+      dockerfile: Dockerfile
+    tty: true
+    ports:
+      - 8080:8080
+    env_file:
+      - .env
+    depends_on:
+      - db
+    volumes:
+      - type: bind
+        source: .
+        target: /go/app
+    networks:
+      - haisin_network
+  db:
+    container_name: haisin_database
+    build:
+      context: ./docker/${GO_ENV}/db
+      dockerfile: Dockerfile
+    tty: true
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+    volumes:
+      - type: volume
+        source: postgresql
+        target: /var/lib/postgresql
+      - type: bind
+        source: ./docker/${GO_ENV}/db/initdb
+        target: /docker-entrypoint-initdb.d
+    networks:
+      - haisin_network
+
+volumes:
+  postgresql:
+    name: postgresql
+networks:
+  haisin_network:
