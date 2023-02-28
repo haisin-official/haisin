@@ -15,7 +15,7 @@ var (
 		{Name: "url", Type: field.TypeString, Size: 2083},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
-		{Name: "user_urls", Type: field.TypeUUID, Nullable: true},
+		{Name: "user_urls", Type: field.TypeUUID},
 	}
 	// UrlsTable holds the schema information for the "urls" table.
 	UrlsTable = &schema.Table{

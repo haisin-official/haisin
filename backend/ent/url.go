@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/haisin-official/haisin/ent/url"
+	"github.com/haisin-official/haisin/ent/user"
 )
 
 // Url is the model entity for the Url schema.
@@ -25,7 +26,32 @@ type Url struct {
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// UpdatedAt holds the value of the "updated_at" field.
 	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the UrlQuery when eager-loading is set.
+	Edges     UrlEdges `json:"edges"`
 	user_urls *uuid.UUID
+}
+
+// UrlEdges holds the relations/edges for other nodes in the graph.
+type UrlEdges struct {
+	// UserID holds the value of the user_id edge.
+	UserID *User `json:"user_id,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// UserIDOrErr returns the UserID value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UrlEdges) UserIDOrErr() (*User, error) {
+	if e.loadedTypes[0] {
+		if e.UserID == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: user.Label}
+		}
+		return e.UserID, nil
+	}
+	return nil, &NotLoadedError{edge: "user_id"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -96,6 +122,11 @@ func (u *Url) assignValues(columns []string, values []any) error {
 		}
 	}
 	return nil
+}
+
+// QueryUserID queries the "user_id" edge of the Url entity.
+func (u *Url) QueryUserID() *UserQuery {
+	return NewURLClient(u.config).QueryUserID(u)
 }
 
 // Update returns a builder for updating this Url.

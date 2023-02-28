@@ -11,8 +11,10 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/haisin-official/haisin/ent/predicate"
 	"github.com/haisin-official/haisin/ent/url"
+	"github.com/haisin-official/haisin/ent/user"
 )
 
 // URLUpdate is the builder for updating Url entities.
@@ -68,9 +70,26 @@ func (uu *URLUpdate) SetNillableUpdatedAt(t *time.Time) *URLUpdate {
 	return uu
 }
 
+// SetUserIDID sets the "user_id" edge to the User entity by ID.
+func (uu *URLUpdate) SetUserIDID(id uuid.UUID) *URLUpdate {
+	uu.mutation.SetUserIDID(id)
+	return uu
+}
+
+// SetUserID sets the "user_id" edge to the User entity.
+func (uu *URLUpdate) SetUserID(u *User) *URLUpdate {
+	return uu.SetUserIDID(u.ID)
+}
+
 // Mutation returns the URLMutation object of the builder.
 func (uu *URLUpdate) Mutation() *URLMutation {
 	return uu.mutation
+}
+
+// ClearUserID clears the "user_id" edge to the User entity.
+func (uu *URLUpdate) ClearUserID() *URLUpdate {
+	uu.mutation.ClearUserID()
+	return uu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -112,6 +131,9 @@ func (uu *URLUpdate) check() error {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Url.url": %w`, err)}
 		}
 	}
+	if _, ok := uu.mutation.UserIDID(); uu.mutation.UserIDCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Url.user_id"`)
+	}
 	return nil
 }
 
@@ -138,6 +160,41 @@ func (uu *URLUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if value, ok := uu.mutation.UpdatedAt(); ok {
 		_spec.SetField(url.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if uu.mutation.UserIDCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   url.UserIDTable,
+			Columns: []string{url.UserIDColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: user.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.UserIDIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   url.UserIDTable,
+			Columns: []string{url.UserIDColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -199,9 +256,26 @@ func (uuo *URLUpdateOne) SetNillableUpdatedAt(t *time.Time) *URLUpdateOne {
 	return uuo
 }
 
+// SetUserIDID sets the "user_id" edge to the User entity by ID.
+func (uuo *URLUpdateOne) SetUserIDID(id uuid.UUID) *URLUpdateOne {
+	uuo.mutation.SetUserIDID(id)
+	return uuo
+}
+
+// SetUserID sets the "user_id" edge to the User entity.
+func (uuo *URLUpdateOne) SetUserID(u *User) *URLUpdateOne {
+	return uuo.SetUserIDID(u.ID)
+}
+
 // Mutation returns the URLMutation object of the builder.
 func (uuo *URLUpdateOne) Mutation() *URLMutation {
 	return uuo.mutation
+}
+
+// ClearUserID clears the "user_id" edge to the User entity.
+func (uuo *URLUpdateOne) ClearUserID() *URLUpdateOne {
+	uuo.mutation.ClearUserID()
+	return uuo
 }
 
 // Where appends a list predicates to the URLUpdate builder.
@@ -256,6 +330,9 @@ func (uuo *URLUpdateOne) check() error {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Url.url": %w`, err)}
 		}
 	}
+	if _, ok := uuo.mutation.UserIDID(); uuo.mutation.UserIDCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "Url.user_id"`)
+	}
 	return nil
 }
 
@@ -299,6 +376,41 @@ func (uuo *URLUpdateOne) sqlSave(ctx context.Context) (_node *Url, err error) {
 	}
 	if value, ok := uuo.mutation.UpdatedAt(); ok {
 		_spec.SetField(url.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if uuo.mutation.UserIDCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   url.UserIDTable,
+			Columns: []string{url.UserIDColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: user.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.UserIDIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   url.UserIDTable,
+			Columns: []string{url.UserIDColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Url{config: uuo.config}
 	_spec.Assign = _node.assignValues

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/google/uuid"
 	"github.com/haisin-official/haisin/ent/predicate"
 )
@@ -233,6 +234,33 @@ func UpdatedAtLT(v time.Time) predicate.Url {
 // UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
 func UpdatedAtLTE(v time.Time) predicate.Url {
 	return predicate.Url(sql.FieldLTE(FieldUpdatedAt, v))
+}
+
+// HasUserID applies the HasEdge predicate on the "user_id" edge.
+func HasUserID() predicate.Url {
+	return predicate.Url(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, UserIDTable, UserIDColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUserIDWith applies the HasEdge predicate on the "user_id" edge with a given conditions (other predicates).
+func HasUserIDWith(preds ...predicate.User) predicate.Url {
+	return predicate.Url(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.To(UserIDInverseTable, UserFieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, UserIDTable, UserIDColumn),
+		)
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

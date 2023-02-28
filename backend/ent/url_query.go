@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/haisin-official/haisin/ent/predicate"
 	"github.com/haisin-official/haisin/ent/url"
+	"github.com/haisin-official/haisin/ent/user"
 )
 
 // URLQuery is the builder for querying Url entities.
@@ -22,6 +23,7 @@ type URLQuery struct {
 	order      []OrderFunc
 	inters     []Interceptor
 	predicates []predicate.Url
+	withUserID *UserQuery
 	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
@@ -57,6 +59,28 @@ func (uq *URLQuery) Unique(unique bool) *URLQuery {
 func (uq *URLQuery) Order(o ...OrderFunc) *URLQuery {
 	uq.order = append(uq.order, o...)
 	return uq
+}
+
+// QueryUserID chains the current query on the "user_id" edge.
+func (uq *URLQuery) QueryUserID() *UserQuery {
+	query := (&UserClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(url.Table, url.FieldID, selector),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, url.UserIDTable, url.UserIDColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
 }
 
 // First returns the first Url entity from the query.
@@ -251,10 +275,22 @@ func (uq *URLQuery) Clone() *URLQuery {
 		order:      append([]OrderFunc{}, uq.order...),
 		inters:     append([]Interceptor{}, uq.inters...),
 		predicates: append([]predicate.Url{}, uq.predicates...),
+		withUserID: uq.withUserID.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
 	}
+}
+
+// WithUserID tells the query-builder to eager-load the nodes that are connected to
+// the "user_id" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *URLQuery) WithUserID(opts ...func(*UserQuery)) *URLQuery {
+	query := (&UserClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withUserID = query
+	return uq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -333,10 +369,16 @@ func (uq *URLQuery) prepareQuery(ctx context.Context) error {
 
 func (uq *URLQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Url, error) {
 	var (
-		nodes   = []*Url{}
-		withFKs = uq.withFKs
-		_spec   = uq.querySpec()
+		nodes       = []*Url{}
+		withFKs     = uq.withFKs
+		_spec       = uq.querySpec()
+		loadedTypes = [1]bool{
+			uq.withUserID != nil,
+		}
 	)
+	if uq.withUserID != nil {
+		withFKs = true
+	}
 	if withFKs {
 		_spec.Node.Columns = append(_spec.Node.Columns, url.ForeignKeys...)
 	}
@@ -346,6 +388,7 @@ func (uq *URLQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Url, err
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Url{config: uq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -357,7 +400,46 @@ func (uq *URLQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Url, err
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := uq.withUserID; query != nil {
+		if err := uq.loadUserID(ctx, query, nodes, nil,
+			func(n *Url, e *User) { n.Edges.UserID = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (uq *URLQuery) loadUserID(ctx context.Context, query *UserQuery, nodes []*Url, init func(*Url), assign func(*Url, *User)) error {
+	ids := make([]uuid.UUID, 0, len(nodes))
+	nodeids := make(map[uuid.UUID][]*Url)
+	for i := range nodes {
+		if nodes[i].user_urls == nil {
+			continue
+		}
+		fk := *nodes[i].user_urls
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(user.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "user_urls" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
 }
 
 func (uq *URLQuery) sqlCount(ctx context.Context) (int, error) {

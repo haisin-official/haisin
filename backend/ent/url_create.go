@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/haisin-official/haisin/ent/url"
+	"github.com/haisin-official/haisin/ent/user"
 )
 
 // URLCreate is the builder for creating a Url entity.
@@ -65,6 +66,17 @@ func (uc *URLCreate) SetNillableUpdatedAt(t *time.Time) *URLCreate {
 func (uc *URLCreate) SetID(u uuid.UUID) *URLCreate {
 	uc.mutation.SetID(u)
 	return uc
+}
+
+// SetUserIDID sets the "user_id" edge to the User entity by ID.
+func (uc *URLCreate) SetUserIDID(id uuid.UUID) *URLCreate {
+	uc.mutation.SetUserIDID(id)
+	return uc
+}
+
+// SetUserID sets the "user_id" edge to the User entity.
+func (uc *URLCreate) SetUserID(u *User) *URLCreate {
+	return uc.SetUserIDID(u.ID)
 }
 
 // Mutation returns the URLMutation object of the builder.
@@ -136,6 +148,9 @@ func (uc *URLCreate) check() error {
 	if _, ok := uc.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Url.updated_at"`)}
 	}
+	if _, ok := uc.mutation.UserIDID(); !ok {
+		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required edge "Url.user_id"`)}
+	}
 	return nil
 }
 
@@ -186,6 +201,26 @@ func (uc *URLCreate) createSpec() (*Url, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.UpdatedAt(); ok {
 		_spec.SetField(url.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
+	}
+	if nodes := uc.mutation.UserIDIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   url.UserIDTable,
+			Columns: []string{url.UserIDColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: user.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.user_urls = &nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

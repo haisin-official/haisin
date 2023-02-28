@@ -243,6 +243,22 @@ func (c *URLClient) GetX(ctx context.Context, id uuid.UUID) *Url {
 	return obj
 }
 
+// QueryUserID queries the user_id edge of a Url.
+func (c *URLClient) QueryUserID(u *Url) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(url.Table, url.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, url.UserIDTable, url.UserIDColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *URLClient) Hooks() []Hook {
 	return c.hooks.Url

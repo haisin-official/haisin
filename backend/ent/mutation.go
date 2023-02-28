@@ -34,17 +34,19 @@ const (
 // URLMutation represents an operation that mutates the Url nodes in the graph.
 type URLMutation struct {
 	config
-	op            Op
-	typ           string
-	id            *uuid.UUID
-	service       *url.Service
-	url           *string
-	created_at    *time.Time
-	updated_at    *time.Time
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*Url, error)
-	predicates    []predicate.Url
+	op             Op
+	typ            string
+	id             *uuid.UUID
+	service        *url.Service
+	url            *string
+	created_at     *time.Time
+	updated_at     *time.Time
+	clearedFields  map[string]struct{}
+	user_id        *uuid.UUID
+	cleareduser_id bool
+	done           bool
+	oldValue       func(context.Context) (*Url, error)
+	predicates     []predicate.Url
 }
 
 var _ ent.Mutation = (*URLMutation)(nil)
@@ -295,6 +297,45 @@ func (m *URLMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
+// SetUserIDID sets the "user_id" edge to the User entity by id.
+func (m *URLMutation) SetUserIDID(id uuid.UUID) {
+	m.user_id = &id
+}
+
+// ClearUserID clears the "user_id" edge to the User entity.
+func (m *URLMutation) ClearUserID() {
+	m.cleareduser_id = true
+}
+
+// UserIDCleared reports if the "user_id" edge to the User entity was cleared.
+func (m *URLMutation) UserIDCleared() bool {
+	return m.cleareduser_id
+}
+
+// UserIDID returns the "user_id" edge ID in the mutation.
+func (m *URLMutation) UserIDID() (id uuid.UUID, exists bool) {
+	if m.user_id != nil {
+		return *m.user_id, true
+	}
+	return
+}
+
+// UserIDIDs returns the "user_id" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// UserIDID instead. It exists only for internal usage by the builders.
+func (m *URLMutation) UserIDIDs() (ids []uuid.UUID) {
+	if id := m.user_id; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetUserID resets all changes to the "user_id" edge.
+func (m *URLMutation) ResetUserID() {
+	m.user_id = nil
+	m.cleareduser_id = false
+}
+
 // Where appends a list predicates to the URLMutation builder.
 func (m *URLMutation) Where(ps ...predicate.Url) {
 	m.predicates = append(m.predicates, ps...)
@@ -479,19 +520,28 @@ func (m *URLMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *URLMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.user_id != nil {
+		edges = append(edges, url.EdgeUserID)
+	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
 func (m *URLMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case url.EdgeUserID:
+		if id := m.user_id; id != nil {
+			return []ent.Value{*id}
+		}
+	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *URLMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
 	return edges
 }
 
@@ -503,25 +553,42 @@ func (m *URLMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *URLMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
+	edges := make([]string, 0, 1)
+	if m.cleareduser_id {
+		edges = append(edges, url.EdgeUserID)
+	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
 func (m *URLMutation) EdgeCleared(name string) bool {
+	switch name {
+	case url.EdgeUserID:
+		return m.cleareduser_id
+	}
 	return false
 }
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
 func (m *URLMutation) ClearEdge(name string) error {
+	switch name {
+	case url.EdgeUserID:
+		m.ClearUserID()
+		return nil
+	}
 	return fmt.Errorf("unknown Url unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
 func (m *URLMutation) ResetEdge(name string) error {
+	switch name {
+	case url.EdgeUserID:
+		m.ResetUserID()
+		return nil
+	}
 	return fmt.Errorf("unknown Url edge %s", name)
 }
 
