@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/google/uuid"
 	"github.com/haisin-official/haisin/ent/migrate"
 
 	"github.com/haisin-official/haisin/ent/url"
@@ -15,6 +16,7 @@ import (
 
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 // Client is the client that holds all ent builders.
@@ -194,7 +196,7 @@ func (c *URLClient) UpdateOne(u *Url) *URLUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *URLClient) UpdateOneID(id int) *URLUpdateOne {
+func (c *URLClient) UpdateOneID(id uuid.UUID) *URLUpdateOne {
 	mutation := newURLMutation(c.config, OpUpdateOne, withUrlID(id))
 	return &URLUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -211,7 +213,7 @@ func (c *URLClient) DeleteOne(u *Url) *URLDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *URLClient) DeleteOneID(id int) *URLDeleteOne {
+func (c *URLClient) DeleteOneID(id uuid.UUID) *URLDeleteOne {
 	builder := c.Delete().Where(url.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -228,12 +230,12 @@ func (c *URLClient) Query() *URLQuery {
 }
 
 // Get returns a Url entity by its id.
-func (c *URLClient) Get(ctx context.Context, id int) (*Url, error) {
+func (c *URLClient) Get(ctx context.Context, id uuid.UUID) (*Url, error) {
 	return c.Query().Where(url.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *URLClient) GetX(ctx context.Context, id int) *Url {
+func (c *URLClient) GetX(ctx context.Context, id uuid.UUID) *Url {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -312,7 +314,7 @@ func (c *UserClient) UpdateOne(u *User) *UserUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *UserClient) UpdateOneID(id int) *UserUpdateOne {
+func (c *UserClient) UpdateOneID(id uuid.UUID) *UserUpdateOne {
 	mutation := newUserMutation(c.config, OpUpdateOne, withUserID(id))
 	return &UserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -329,7 +331,7 @@ func (c *UserClient) DeleteOne(u *User) *UserDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *UserClient) DeleteOneID(id int) *UserDeleteOne {
+func (c *UserClient) DeleteOneID(id uuid.UUID) *UserDeleteOne {
 	builder := c.Delete().Where(user.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -346,17 +348,33 @@ func (c *UserClient) Query() *UserQuery {
 }
 
 // Get returns a User entity by its id.
-func (c *UserClient) Get(ctx context.Context, id int) (*User, error) {
+func (c *UserClient) Get(ctx context.Context, id uuid.UUID) (*User, error) {
 	return c.Query().Where(user.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *UserClient) GetX(ctx context.Context, id int) *User {
+func (c *UserClient) GetX(ctx context.Context, id uuid.UUID) *User {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryUrls queries the urls edge of a User.
+func (c *UserClient) QueryUrls(u *User) *URLQuery {
+	query := (&URLClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(url.Table, url.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.UrlsTable, user.UrlsColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.

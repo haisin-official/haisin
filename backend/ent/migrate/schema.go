@@ -10,17 +10,35 @@ import (
 var (
 	// UrlsColumns holds the columns for the "urls" table.
 	UrlsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "urlid", Type: field.TypeUUID, Unique: true},
+		{Name: "service", Type: field.TypeEnum, Enums: []string{"twitter", "youtube", "fanbox"}},
+		{Name: "url", Type: field.TypeString, Size: 2083},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "user_urls", Type: field.TypeUUID, Nullable: true},
 	}
 	// UrlsTable holds the schema information for the "urls" table.
 	UrlsTable = &schema.Table{
 		Name:       "urls",
 		Columns:    UrlsColumns,
 		PrimaryKey: []*schema.Column{UrlsColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "urls_users_urls",
+				Columns:    []*schema.Column{UrlsColumns[5]},
+				RefColumns: []*schema.Column{UsersColumns[0]},
+				OnDelete:   schema.Cascade,
+			},
+		},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "user_id", Type: field.TypeUUID, Unique: true},
+		{Name: "email", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "slug", Type: field.TypeString, Unique: true, Size: 30},
+		{Name: "ga", Type: field.TypeString, Nullable: true, Size: 100},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -36,4 +54,5 @@ var (
 )
 
 func init() {
+	UrlsTable.ForeignKeys[0].RefTable = UsersTable
 }

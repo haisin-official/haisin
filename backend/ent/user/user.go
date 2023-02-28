@@ -2,18 +2,48 @@
 
 package user
 
+import (
+	"time"
+)
+
 const (
 	// Label holds the string label denoting the user type in the database.
 	Label = "user"
 	// FieldID holds the string denoting the id field in the database.
-	FieldID = "id"
+	FieldID = "user_id"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
+	// FieldSlug holds the string denoting the slug field in the database.
+	FieldSlug = "slug"
+	// FieldGa holds the string denoting the ga field in the database.
+	FieldGa = "ga"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// EdgeUrls holds the string denoting the urls edge name in mutations.
+	EdgeUrls = "urls"
+	// UrlFieldID holds the string denoting the ID field of the Url.
+	UrlFieldID = "urlid"
 	// Table holds the table name of the user in the database.
 	Table = "users"
+	// UrlsTable is the table that holds the urls relation/edge.
+	UrlsTable = "urls"
+	// UrlsInverseTable is the table name for the Url entity.
+	// It exists in this package in order to avoid circular dependency with the "url" package.
+	UrlsInverseTable = "urls"
+	// UrlsColumn is the table column denoting the urls relation/edge.
+	UrlsColumn = "user_urls"
 )
 
 // Columns holds all SQL columns for user fields.
 var Columns = []string{
 	FieldID,
+	FieldEmail,
+	FieldSlug,
+	FieldGa,
+	FieldCreatedAt,
+	FieldUpdatedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -25,3 +55,16 @@ func ValidColumn(column string) bool {
 	}
 	return false
 }
+
+var (
+	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	EmailValidator func(string) error
+	// SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	SlugValidator func(string) error
+	// GaValidator is a validator for the "ga" field. It is called by the builders before save.
+	GaValidator func(string) error
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+)

@@ -10,6 +10,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/haisin-official/haisin/ent/predicate"
 	"github.com/haisin-official/haisin/ent/url"
 )
@@ -21,6 +22,7 @@ type URLQuery struct {
 	order      []OrderFunc
 	inters     []Interceptor
 	predicates []predicate.Url
+	withFKs    bool
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -81,8 +83,8 @@ func (uq *URLQuery) FirstX(ctx context.Context) *Url {
 
 // FirstID returns the first Url ID from the query.
 // Returns a *NotFoundError when no Url ID was found.
-func (uq *URLQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (uq *URLQuery) FirstID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = uq.Limit(1).IDs(setContextOp(ctx, uq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -94,7 +96,7 @@ func (uq *URLQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (uq *URLQuery) FirstIDX(ctx context.Context) int {
+func (uq *URLQuery) FirstIDX(ctx context.Context) uuid.UUID {
 	id, err := uq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -132,8 +134,8 @@ func (uq *URLQuery) OnlyX(ctx context.Context) *Url {
 // OnlyID is like Only, but returns the only Url ID in the query.
 // Returns a *NotSingularError when more than one Url ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (uq *URLQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (uq *URLQuery) OnlyID(ctx context.Context) (id uuid.UUID, err error) {
+	var ids []uuid.UUID
 	if ids, err = uq.Limit(2).IDs(setContextOp(ctx, uq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -149,7 +151,7 @@ func (uq *URLQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (uq *URLQuery) OnlyIDX(ctx context.Context) int {
+func (uq *URLQuery) OnlyIDX(ctx context.Context) uuid.UUID {
 	id, err := uq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -177,7 +179,7 @@ func (uq *URLQuery) AllX(ctx context.Context) []*Url {
 }
 
 // IDs executes the query and returns a list of Url IDs.
-func (uq *URLQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (uq *URLQuery) IDs(ctx context.Context) (ids []uuid.UUID, err error) {
 	if uq.ctx.Unique == nil && uq.path != nil {
 		uq.Unique(true)
 	}
@@ -189,7 +191,7 @@ func (uq *URLQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (uq *URLQuery) IDsX(ctx context.Context) []int {
+func (uq *URLQuery) IDsX(ctx context.Context) []uuid.UUID {
 	ids, err := uq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -257,6 +259,18 @@ func (uq *URLQuery) Clone() *URLQuery {
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		Service url.Service `json:"service,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.URL.Query().
+//		GroupBy(url.FieldService).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (uq *URLQuery) GroupBy(field string, fields ...string) *URLGroupBy {
 	uq.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &URLGroupBy{build: uq}
@@ -268,6 +282,16 @@ func (uq *URLQuery) GroupBy(field string, fields ...string) *URLGroupBy {
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		Service url.Service `json:"service,omitempty"`
+//	}
+//
+//	client.URL.Query().
+//		Select(url.FieldService).
+//		Scan(ctx, &v)
 func (uq *URLQuery) Select(fields ...string) *URLSelect {
 	uq.ctx.Fields = append(uq.ctx.Fields, fields...)
 	sbuild := &URLSelect{URLQuery: uq}
@@ -309,9 +333,13 @@ func (uq *URLQuery) prepareQuery(ctx context.Context) error {
 
 func (uq *URLQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Url, error) {
 	var (
-		nodes = []*Url{}
-		_spec = uq.querySpec()
+		nodes   = []*Url{}
+		withFKs = uq.withFKs
+		_spec   = uq.querySpec()
 	)
+	if withFKs {
+		_spec.Node.Columns = append(_spec.Node.Columns, url.ForeignKeys...)
+	}
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Url).scanValues(nil, columns)
 	}
@@ -342,7 +370,7 @@ func (uq *URLQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (uq *URLQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(url.Table, url.Columns, sqlgraph.NewFieldSpec(url.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(url.Table, url.Columns, sqlgraph.NewFieldSpec(url.FieldID, field.TypeUUID))
 	_spec.From = uq.sql
 	if unique := uq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

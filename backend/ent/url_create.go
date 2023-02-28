@@ -4,10 +4,13 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/haisin-official/haisin/ent/url"
 )
 
@@ -18,6 +21,52 @@ type URLCreate struct {
 	hooks    []Hook
 }
 
+// SetService sets the "service" field.
+func (uc *URLCreate) SetService(u url.Service) *URLCreate {
+	uc.mutation.SetService(u)
+	return uc
+}
+
+// SetURL sets the "url" field.
+func (uc *URLCreate) SetURL(s string) *URLCreate {
+	uc.mutation.SetURL(s)
+	return uc
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (uc *URLCreate) SetCreatedAt(t time.Time) *URLCreate {
+	uc.mutation.SetCreatedAt(t)
+	return uc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (uc *URLCreate) SetNillableCreatedAt(t *time.Time) *URLCreate {
+	if t != nil {
+		uc.SetCreatedAt(*t)
+	}
+	return uc
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (uc *URLCreate) SetUpdatedAt(t time.Time) *URLCreate {
+	uc.mutation.SetUpdatedAt(t)
+	return uc
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (uc *URLCreate) SetNillableUpdatedAt(t *time.Time) *URLCreate {
+	if t != nil {
+		uc.SetUpdatedAt(*t)
+	}
+	return uc
+}
+
+// SetID sets the "id" field.
+func (uc *URLCreate) SetID(u uuid.UUID) *URLCreate {
+	uc.mutation.SetID(u)
+	return uc
+}
+
 // Mutation returns the URLMutation object of the builder.
 func (uc *URLCreate) Mutation() *URLMutation {
 	return uc.mutation
@@ -25,6 +74,7 @@ func (uc *URLCreate) Mutation() *URLMutation {
 
 // Save creates the Url in the database.
 func (uc *URLCreate) Save(ctx context.Context) (*Url, error) {
+	uc.defaults()
 	return withHooks[*Url, URLMutation](ctx, uc.sqlSave, uc.mutation, uc.hooks)
 }
 
@@ -50,8 +100,42 @@ func (uc *URLCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (uc *URLCreate) defaults() {
+	if _, ok := uc.mutation.CreatedAt(); !ok {
+		v := url.DefaultCreatedAt()
+		uc.mutation.SetCreatedAt(v)
+	}
+	if _, ok := uc.mutation.UpdatedAt(); !ok {
+		v := url.DefaultUpdatedAt()
+		uc.mutation.SetUpdatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (uc *URLCreate) check() error {
+	if _, ok := uc.mutation.Service(); !ok {
+		return &ValidationError{Name: "service", err: errors.New(`ent: missing required field "Url.service"`)}
+	}
+	if v, ok := uc.mutation.Service(); ok {
+		if err := url.ServiceValidator(v); err != nil {
+			return &ValidationError{Name: "service", err: fmt.Errorf(`ent: validator failed for field "Url.service": %w`, err)}
+		}
+	}
+	if _, ok := uc.mutation.URL(); !ok {
+		return &ValidationError{Name: "url", err: errors.New(`ent: missing required field "Url.url"`)}
+	}
+	if v, ok := uc.mutation.URL(); ok {
+		if err := url.URLValidator(v); err != nil {
+			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Url.url": %w`, err)}
+		}
+	}
+	if _, ok := uc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Url.created_at"`)}
+	}
+	if _, ok := uc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Url.updated_at"`)}
+	}
 	return nil
 }
 
@@ -66,8 +150,13 @@ func (uc *URLCreate) sqlSave(ctx context.Context) (*Url, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(*uuid.UUID); ok {
+			_node.ID = *id
+		} else if err := _node.ID.Scan(_spec.ID.Value); err != nil {
+			return nil, err
+		}
+	}
 	uc.mutation.id = &_node.ID
 	uc.mutation.done = true
 	return _node, nil
@@ -76,8 +165,28 @@ func (uc *URLCreate) sqlSave(ctx context.Context) (*Url, error) {
 func (uc *URLCreate) createSpec() (*Url, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Url{config: uc.config}
-		_spec = sqlgraph.NewCreateSpec(url.Table, sqlgraph.NewFieldSpec(url.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(url.Table, sqlgraph.NewFieldSpec(url.FieldID, field.TypeUUID))
 	)
+	if id, ok := uc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = &id
+	}
+	if value, ok := uc.mutation.Service(); ok {
+		_spec.SetField(url.FieldService, field.TypeEnum, value)
+		_node.Service = value
+	}
+	if value, ok := uc.mutation.URL(); ok {
+		_spec.SetField(url.FieldURL, field.TypeString, value)
+		_node.URL = value
+	}
+	if value, ok := uc.mutation.CreatedAt(); ok {
+		_spec.SetField(url.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
+	if value, ok := uc.mutation.UpdatedAt(); ok {
+		_spec.SetField(url.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
+	}
 	return _node, _spec
 }
 
@@ -95,6 +204,7 @@ func (ucb *URLCreateBulk) Save(ctx context.Context) ([]*Url, error) {
 	for i := range ucb.builders {
 		func(i int, root context.Context) {
 			builder := ucb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*URLMutation)
 				if !ok {
@@ -121,10 +231,6 @@ func (ucb *URLCreateBulk) Save(ctx context.Context) ([]*Url, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

@@ -2,8 +2,94 @@
 
 package ent
 
+import (
+	"time"
+
+	"github.com/haisin-official/haisin/ent/schema"
+	"github.com/haisin-official/haisin/ent/url"
+	"github.com/haisin-official/haisin/ent/user"
+)
+
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	urlFields := schema.Url{}.Fields()
+	_ = urlFields
+	// urlDescURL is the schema descriptor for url field.
+	urlDescURL := urlFields[2].Descriptor()
+	// url.URLValidator is a validator for the "url" field. It is called by the builders before save.
+	url.URLValidator = func() func(string) error {
+		validators := urlDescURL.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(url string) error {
+			for _, fn := range fns {
+				if err := fn(url); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// urlDescCreatedAt is the schema descriptor for created_at field.
+	urlDescCreatedAt := urlFields[3].Descriptor()
+	// url.DefaultCreatedAt holds the default value on creation for the created_at field.
+	url.DefaultCreatedAt = urlDescCreatedAt.Default.(func() time.Time)
+	// urlDescUpdatedAt is the schema descriptor for updated_at field.
+	urlDescUpdatedAt := urlFields[4].Descriptor()
+	// url.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	url.DefaultUpdatedAt = urlDescUpdatedAt.Default.(func() time.Time)
+	userFields := schema.User{}.Fields()
+	_ = userFields
+	// userDescEmail is the schema descriptor for email field.
+	userDescEmail := userFields[1].Descriptor()
+	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	user.EmailValidator = func() func(string) error {
+		validators := userDescEmail.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(email string) error {
+			for _, fn := range fns {
+				if err := fn(email); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// userDescSlug is the schema descriptor for slug field.
+	userDescSlug := userFields[2].Descriptor()
+	// user.SlugValidator is a validator for the "slug" field. It is called by the builders before save.
+	user.SlugValidator = func() func(string) error {
+		validators := userDescSlug.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(slug string) error {
+			for _, fn := range fns {
+				if err := fn(slug); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// userDescGa is the schema descriptor for ga field.
+	userDescGa := userFields[3].Descriptor()
+	// user.GaValidator is a validator for the "ga" field. It is called by the builders before save.
+	user.GaValidator = userDescGa.Validators[0].(func(string) error)
+	// userDescCreatedAt is the schema descriptor for created_at field.
+	userDescCreatedAt := userFields[4].Descriptor()
+	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
+	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
+	// userDescUpdatedAt is the schema descriptor for updated_at field.
+	userDescUpdatedAt := userFields[5].Descriptor()
+	// user.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
 }

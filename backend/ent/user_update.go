@@ -6,11 +6,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 	"github.com/haisin-official/haisin/ent/predicate"
+	"github.com/haisin-official/haisin/ent/url"
 	"github.com/haisin-official/haisin/ent/user"
 )
 
@@ -27,9 +30,105 @@ func (uu *UserUpdate) Where(ps ...predicate.User) *UserUpdate {
 	return uu
 }
 
+// SetEmail sets the "email" field.
+func (uu *UserUpdate) SetEmail(s string) *UserUpdate {
+	uu.mutation.SetEmail(s)
+	return uu
+}
+
+// SetSlug sets the "slug" field.
+func (uu *UserUpdate) SetSlug(s string) *UserUpdate {
+	uu.mutation.SetSlug(s)
+	return uu
+}
+
+// SetGa sets the "ga" field.
+func (uu *UserUpdate) SetGa(s string) *UserUpdate {
+	uu.mutation.SetGa(s)
+	return uu
+}
+
+// SetNillableGa sets the "ga" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableGa(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetGa(*s)
+	}
+	return uu
+}
+
+// ClearGa clears the value of the "ga" field.
+func (uu *UserUpdate) ClearGa() *UserUpdate {
+	uu.mutation.ClearGa()
+	return uu
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (uu *UserUpdate) SetCreatedAt(t time.Time) *UserUpdate {
+	uu.mutation.SetCreatedAt(t)
+	return uu
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableCreatedAt(t *time.Time) *UserUpdate {
+	if t != nil {
+		uu.SetCreatedAt(*t)
+	}
+	return uu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (uu *UserUpdate) SetUpdatedAt(t time.Time) *UserUpdate {
+	uu.mutation.SetUpdatedAt(t)
+	return uu
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableUpdatedAt(t *time.Time) *UserUpdate {
+	if t != nil {
+		uu.SetUpdatedAt(*t)
+	}
+	return uu
+}
+
+// AddURLIDs adds the "urls" edge to the Url entity by IDs.
+func (uu *UserUpdate) AddURLIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.AddURLIDs(ids...)
+	return uu
+}
+
+// AddUrls adds the "urls" edges to the Url entity.
+func (uu *UserUpdate) AddUrls(u ...*Url) *UserUpdate {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return uu.AddURLIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
+}
+
+// ClearUrls clears all "urls" edges to the Url entity.
+func (uu *UserUpdate) ClearUrls() *UserUpdate {
+	uu.mutation.ClearUrls()
+	return uu
+}
+
+// RemoveURLIDs removes the "urls" edge to Url entities by IDs.
+func (uu *UserUpdate) RemoveURLIDs(ids ...uuid.UUID) *UserUpdate {
+	uu.mutation.RemoveURLIDs(ids...)
+	return uu
+}
+
+// RemoveUrls removes "urls" edges to Url entities.
+func (uu *UserUpdate) RemoveUrls(u ...*Url) *UserUpdate {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return uu.RemoveURLIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -59,14 +158,109 @@ func (uu *UserUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (uu *UserUpdate) check() error {
+	if v, ok := uu.mutation.Email(); ok {
+		if err := user.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "User.email": %w`, err)}
+		}
+	}
+	if v, ok := uu.mutation.Slug(); ok {
+		if err := user.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "User.slug": %w`, err)}
+		}
+	}
+	if v, ok := uu.mutation.Ga(); ok {
+		if err := user.GaValidator(v); err != nil {
+			return &ValidationError{Name: "ga", err: fmt.Errorf(`ent: validator failed for field "User.ga": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	if err := uu.check(); err != nil {
+		return n, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID))
 	if ps := uu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := uu.mutation.Email(); ok {
+		_spec.SetField(user.FieldEmail, field.TypeString, value)
+	}
+	if value, ok := uu.mutation.Slug(); ok {
+		_spec.SetField(user.FieldSlug, field.TypeString, value)
+	}
+	if value, ok := uu.mutation.Ga(); ok {
+		_spec.SetField(user.FieldGa, field.TypeString, value)
+	}
+	if uu.mutation.GaCleared() {
+		_spec.ClearField(user.FieldGa, field.TypeString)
+	}
+	if value, ok := uu.mutation.CreatedAt(); ok {
+		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := uu.mutation.UpdatedAt(); ok {
+		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if uu.mutation.UrlsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UrlsTable,
+			Columns: []string{user.UrlsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: url.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.RemovedUrlsIDs(); len(nodes) > 0 && !uu.mutation.UrlsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UrlsTable,
+			Columns: []string{user.UrlsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: url.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uu.mutation.UrlsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UrlsTable,
+			Columns: []string{user.UrlsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: url.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -88,9 +282,105 @@ type UserUpdateOne struct {
 	mutation *UserMutation
 }
 
+// SetEmail sets the "email" field.
+func (uuo *UserUpdateOne) SetEmail(s string) *UserUpdateOne {
+	uuo.mutation.SetEmail(s)
+	return uuo
+}
+
+// SetSlug sets the "slug" field.
+func (uuo *UserUpdateOne) SetSlug(s string) *UserUpdateOne {
+	uuo.mutation.SetSlug(s)
+	return uuo
+}
+
+// SetGa sets the "ga" field.
+func (uuo *UserUpdateOne) SetGa(s string) *UserUpdateOne {
+	uuo.mutation.SetGa(s)
+	return uuo
+}
+
+// SetNillableGa sets the "ga" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableGa(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetGa(*s)
+	}
+	return uuo
+}
+
+// ClearGa clears the value of the "ga" field.
+func (uuo *UserUpdateOne) ClearGa() *UserUpdateOne {
+	uuo.mutation.ClearGa()
+	return uuo
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (uuo *UserUpdateOne) SetCreatedAt(t time.Time) *UserUpdateOne {
+	uuo.mutation.SetCreatedAt(t)
+	return uuo
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableCreatedAt(t *time.Time) *UserUpdateOne {
+	if t != nil {
+		uuo.SetCreatedAt(*t)
+	}
+	return uuo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (uuo *UserUpdateOne) SetUpdatedAt(t time.Time) *UserUpdateOne {
+	uuo.mutation.SetUpdatedAt(t)
+	return uuo
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableUpdatedAt(t *time.Time) *UserUpdateOne {
+	if t != nil {
+		uuo.SetUpdatedAt(*t)
+	}
+	return uuo
+}
+
+// AddURLIDs adds the "urls" edge to the Url entity by IDs.
+func (uuo *UserUpdateOne) AddURLIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.AddURLIDs(ids...)
+	return uuo
+}
+
+// AddUrls adds the "urls" edges to the Url entity.
+func (uuo *UserUpdateOne) AddUrls(u ...*Url) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return uuo.AddURLIDs(ids...)
+}
+
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
+}
+
+// ClearUrls clears all "urls" edges to the Url entity.
+func (uuo *UserUpdateOne) ClearUrls() *UserUpdateOne {
+	uuo.mutation.ClearUrls()
+	return uuo
+}
+
+// RemoveURLIDs removes the "urls" edge to Url entities by IDs.
+func (uuo *UserUpdateOne) RemoveURLIDs(ids ...uuid.UUID) *UserUpdateOne {
+	uuo.mutation.RemoveURLIDs(ids...)
+	return uuo
+}
+
+// RemoveUrls removes "urls" edges to Url entities.
+func (uuo *UserUpdateOne) RemoveUrls(u ...*Url) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(u))
+	for i := range u {
+		ids[i] = u[i].ID
+	}
+	return uuo.RemoveURLIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -133,8 +423,31 @@ func (uuo *UserUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (uuo *UserUpdateOne) check() error {
+	if v, ok := uuo.mutation.Email(); ok {
+		if err := user.EmailValidator(v); err != nil {
+			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "User.email": %w`, err)}
+		}
+	}
+	if v, ok := uuo.mutation.Slug(); ok {
+		if err := user.SlugValidator(v); err != nil {
+			return &ValidationError{Name: "slug", err: fmt.Errorf(`ent: validator failed for field "User.slug": %w`, err)}
+		}
+	}
+	if v, ok := uuo.mutation.Ga(); ok {
+		if err := user.GaValidator(v); err != nil {
+			return &ValidationError{Name: "ga", err: fmt.Errorf(`ent: validator failed for field "User.ga": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
-	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
+	if err := uuo.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeUUID))
 	id, ok := uuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "User.id" for update`)}
@@ -158,6 +471,78 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := uuo.mutation.Email(); ok {
+		_spec.SetField(user.FieldEmail, field.TypeString, value)
+	}
+	if value, ok := uuo.mutation.Slug(); ok {
+		_spec.SetField(user.FieldSlug, field.TypeString, value)
+	}
+	if value, ok := uuo.mutation.Ga(); ok {
+		_spec.SetField(user.FieldGa, field.TypeString, value)
+	}
+	if uuo.mutation.GaCleared() {
+		_spec.ClearField(user.FieldGa, field.TypeString)
+	}
+	if value, ok := uuo.mutation.CreatedAt(); ok {
+		_spec.SetField(user.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := uuo.mutation.UpdatedAt(); ok {
+		_spec.SetField(user.FieldUpdatedAt, field.TypeTime, value)
+	}
+	if uuo.mutation.UrlsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UrlsTable,
+			Columns: []string{user.UrlsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: url.FieldID,
+				},
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.RemovedUrlsIDs(); len(nodes) > 0 && !uuo.mutation.UrlsCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UrlsTable,
+			Columns: []string{user.UrlsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: url.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := uuo.mutation.UrlsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UrlsTable,
+			Columns: []string{user.UrlsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: &sqlgraph.FieldSpec{
+					Type:   field.TypeUUID,
+					Column: url.FieldID,
+				},
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &User{config: uuo.config}
 	_spec.Assign = _node.assignValues

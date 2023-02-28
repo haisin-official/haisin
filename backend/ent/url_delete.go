@@ -40,7 +40,7 @@ func (ud *URLDelete) ExecX(ctx context.Context) int {
 }
 
 func (ud *URLDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(url.Table, sqlgraph.NewFieldSpec(url.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(url.Table, sqlgraph.NewFieldSpec(url.FieldID, field.TypeUUID))
 	if ps := ud.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

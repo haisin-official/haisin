@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -24,6 +25,46 @@ type URLUpdate struct {
 // Where appends a list predicates to the URLUpdate builder.
 func (uu *URLUpdate) Where(ps ...predicate.Url) *URLUpdate {
 	uu.mutation.Where(ps...)
+	return uu
+}
+
+// SetService sets the "service" field.
+func (uu *URLUpdate) SetService(u url.Service) *URLUpdate {
+	uu.mutation.SetService(u)
+	return uu
+}
+
+// SetURL sets the "url" field.
+func (uu *URLUpdate) SetURL(s string) *URLUpdate {
+	uu.mutation.SetURL(s)
+	return uu
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (uu *URLUpdate) SetCreatedAt(t time.Time) *URLUpdate {
+	uu.mutation.SetCreatedAt(t)
+	return uu
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (uu *URLUpdate) SetNillableCreatedAt(t *time.Time) *URLUpdate {
+	if t != nil {
+		uu.SetCreatedAt(*t)
+	}
+	return uu
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (uu *URLUpdate) SetUpdatedAt(t time.Time) *URLUpdate {
+	uu.mutation.SetUpdatedAt(t)
+	return uu
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (uu *URLUpdate) SetNillableUpdatedAt(t *time.Time) *URLUpdate {
+	if t != nil {
+		uu.SetUpdatedAt(*t)
+	}
 	return uu
 }
 
@@ -59,14 +100,44 @@ func (uu *URLUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (uu *URLUpdate) check() error {
+	if v, ok := uu.mutation.Service(); ok {
+		if err := url.ServiceValidator(v); err != nil {
+			return &ValidationError{Name: "service", err: fmt.Errorf(`ent: validator failed for field "Url.service": %w`, err)}
+		}
+	}
+	if v, ok := uu.mutation.URL(); ok {
+		if err := url.URLValidator(v); err != nil {
+			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Url.url": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (uu *URLUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(url.Table, url.Columns, sqlgraph.NewFieldSpec(url.FieldID, field.TypeInt))
+	if err := uu.check(); err != nil {
+		return n, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(url.Table, url.Columns, sqlgraph.NewFieldSpec(url.FieldID, field.TypeUUID))
 	if ps := uu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := uu.mutation.Service(); ok {
+		_spec.SetField(url.FieldService, field.TypeEnum, value)
+	}
+	if value, ok := uu.mutation.URL(); ok {
+		_spec.SetField(url.FieldURL, field.TypeString, value)
+	}
+	if value, ok := uu.mutation.CreatedAt(); ok {
+		_spec.SetField(url.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := uu.mutation.UpdatedAt(); ok {
+		_spec.SetField(url.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -86,6 +157,46 @@ type URLUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *URLMutation
+}
+
+// SetService sets the "service" field.
+func (uuo *URLUpdateOne) SetService(u url.Service) *URLUpdateOne {
+	uuo.mutation.SetService(u)
+	return uuo
+}
+
+// SetURL sets the "url" field.
+func (uuo *URLUpdateOne) SetURL(s string) *URLUpdateOne {
+	uuo.mutation.SetURL(s)
+	return uuo
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (uuo *URLUpdateOne) SetCreatedAt(t time.Time) *URLUpdateOne {
+	uuo.mutation.SetCreatedAt(t)
+	return uuo
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (uuo *URLUpdateOne) SetNillableCreatedAt(t *time.Time) *URLUpdateOne {
+	if t != nil {
+		uuo.SetCreatedAt(*t)
+	}
+	return uuo
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (uuo *URLUpdateOne) SetUpdatedAt(t time.Time) *URLUpdateOne {
+	uuo.mutation.SetUpdatedAt(t)
+	return uuo
+}
+
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (uuo *URLUpdateOne) SetNillableUpdatedAt(t *time.Time) *URLUpdateOne {
+	if t != nil {
+		uuo.SetUpdatedAt(*t)
+	}
+	return uuo
 }
 
 // Mutation returns the URLMutation object of the builder.
@@ -133,8 +244,26 @@ func (uuo *URLUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (uuo *URLUpdateOne) check() error {
+	if v, ok := uuo.mutation.Service(); ok {
+		if err := url.ServiceValidator(v); err != nil {
+			return &ValidationError{Name: "service", err: fmt.Errorf(`ent: validator failed for field "Url.service": %w`, err)}
+		}
+	}
+	if v, ok := uuo.mutation.URL(); ok {
+		if err := url.URLValidator(v); err != nil {
+			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Url.url": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (uuo *URLUpdateOne) sqlSave(ctx context.Context) (_node *Url, err error) {
-	_spec := sqlgraph.NewUpdateSpec(url.Table, url.Columns, sqlgraph.NewFieldSpec(url.FieldID, field.TypeInt))
+	if err := uuo.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(url.Table, url.Columns, sqlgraph.NewFieldSpec(url.FieldID, field.TypeUUID))
 	id, ok := uuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Url.id" for update`)}
@@ -158,6 +287,18 @@ func (uuo *URLUpdateOne) sqlSave(ctx context.Context) (_node *Url, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := uuo.mutation.Service(); ok {
+		_spec.SetField(url.FieldService, field.TypeEnum, value)
+	}
+	if value, ok := uuo.mutation.URL(); ok {
+		_spec.SetField(url.FieldURL, field.TypeString, value)
+	}
+	if value, ok := uuo.mutation.CreatedAt(); ok {
+		_spec.SetField(url.FieldCreatedAt, field.TypeTime, value)
+	}
+	if value, ok := uuo.mutation.UpdatedAt(); ok {
+		_spec.SetField(url.FieldUpdatedAt, field.TypeTime, value)
 	}
 	_node = &Url{config: uuo.config}
 	_spec.Assign = _node.assignValues
