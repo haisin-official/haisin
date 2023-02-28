@@ -1,6 +1,12 @@
 package schema
 
-import "entgo.io/ent"
+import (
+	"time"
+
+	"entgo.io/ent"
+	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
+)
 
 // Url holds the schema definition for the Url entity.
 type Url struct {
@@ -9,7 +15,18 @@ type Url struct {
 
 // Fields of the Url.
 func (Url) Fields() []ent.Field {
-	return nil
+	return []ent.Field{
+		field.UUID("id", uuid.UUID{}).
+			StorageKey("uuid").
+			Unique(),
+		field.Enum("service").
+			Values("twitter", "youtube", "fanbox"),
+		field.String("url").
+			MaxLen(256).
+			NotEmpty(),
+		field.Time("created_at").
+			Default(time.Now()),
+	}
 }
 
 // Edges of the Url.
