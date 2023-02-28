@@ -22,7 +22,7 @@ func (Url) Fields() []ent.Field {
 		field.Enum("service").
 			Values("twitter", "youtube", "fanbox"),
 		field.String("url").
-			MaxLen(256).
+			MaxLen(2083).
 			NotEmpty(),
 		field.Time("created_at").
 			Default(time.Now()),
