@@ -1,0 +1,583 @@
+openapi: 3.0.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/hais.in/hais.in/1.0.0
+  - description: hais.in server
+    url: https://hais.in/api/v1
+info:
+  description: hais.in is url shortener service.
+  version: "1.0.0"
+  title: hais.in main API
+  contact:
+    email: official@hais.in
+  license:
+    name: GPL3.0
+    url: https://www.gnu.org/licenses/gpl-3.0.ja.html
+tags:
+  - name: OAuth
+    description: Sign in or Sign up
+  - name: slug
+    description: slug
+  - name: service
+    description: Control Redirection URL
+  - name: url
+    description: Get Redirection URL
+paths:
+  /oauth/google/redirect:
+    get:
+      tags:
+        - OAuth
+      summary: Get Redirect URL
+      operationId: getRedirectURL
+      description: |
+        Google OAuth 2.0 を使用するために, リダイレクトするURLを提供します
+      responses:
+        "200":
+          description: "リダイレクト先のURL"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthRedirectURL'
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+  /oauth/google/callback:
+    post:
+      tags:
+        - OAuth
+      summary: Check OAuth Token
+      operationId: checkOAuthToken
+      description: |
+        Google OAuth 2.0から届いたトークンを検証し、ログイン・新規登録します
+      responses:
+        "200":
+          description: "ユーザーデータ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserData'
+        "403":
+          description: CSRF Token Invalid.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CSRFTokenInvalid"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+  /slug:
+    get:
+      tags:
+        - slug
+      summary: Get Slug
+      operationId: getSlug
+      description: |
+        ユーザーの表示名となるスラッグを取得します
+      responses:
+        "200":
+          description: "ユーザーの持つスラッグ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlugData'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    post:
+      tags:
+        - slug
+      summary: Change Slug
+      operationId: changeSlug
+      description: |
+        スラッグを変更します
+      responses:
+        "200":
+          description: "ユーザーの持つスラッグ"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlugData'
+        "400":
+          description: Some parameter is missing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParameterMissing"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "409":
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Conflict"
+        "422":
+          description: This slug is an invalid format
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidFormat"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SlugData'
+        description: 新しいスラッグ
+  /service:
+    get:
+      tags:
+        - service
+      summary: Get Registered Service
+      operationId: getService
+      description: |
+        登録されているサービス一覧を取得します
+      responses:
+        "200":
+          description: "ユーザーが登録したサービス"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserURLData'
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+    post:
+      tags:
+        - service
+      summary: Change Service
+      operationId: changeService
+      description: |
+        サービスを追加・変更します
+      responses:
+        "200":
+          description: "追加・変更されたサービス"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceData'
+        "400":
+          description: Some parameter is missing.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParameterMissing"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "404":
+          description: Service Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+        "422":
+          description: This service name is an invalid format
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidFormat"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceData'
+        description: 追加・変更するサービス
+  /service/{service}:
+    delete:
+      tags:
+        - service
+      summary: Delete Service
+      operationId: deleteService
+      parameters:
+      - name: service
+        in: path
+        required: true
+        description: "サービスの種類"
+        schema:
+          type: string
+      description: |
+        サービスを削除します
+      responses:
+        "200":
+          description: "削除完了"
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Some parameter is missing.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParameterMissing"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "404":
+          description: Service Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+        "422":
+          description: This service is an invalid format
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidFormat"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+
+  /url/{slug}:
+    get:
+      tags:
+        - url
+      summary: Get All Redirection URL
+      operationId: getAllRedirectionUrl
+      parameters:
+      - name: slug
+        in: path
+        required: true
+        description: "スラッグ"
+        schema:
+          type: string
+      description: |
+         登録されたサービスのリダイレクト先URLすべてを取得します
+      responses:
+        "200":
+          description: "ユーザーが登録したサービス"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserURLData'
+        "400":
+          description: Some parameter is missing.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParameterMissing"
+        "404":
+          description: Service Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+        "422":
+          description: This service is an invalid format
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidFormat"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+
+  /url/{slug}/{service}:
+    get:
+      tags:
+        - url
+      summary: Get Redirection URL
+      operationId: getRedirectionUrl
+      parameters:
+      - name: slug
+        in: path
+        required: true
+        description: "スラッグ"
+        schema:
+          type: string
+      - name: service
+        in: path
+        required: true
+        description: "サービス"
+        schema:
+          type: string
+      description: |
+         登録されたサービスのリダイレクト先URLを取得します
+      responses:
+        "200":
+          description: "ユーザーが登録したサービス"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/URLData'
+        "400":
+          description: Some parameter is missing.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParameterMissing"
+        "404":
+          description: Service Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+        "422":
+          description: This service is an invalid format
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidFormat"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+
+
+
+components:
+  schemas:
+    OAuthRedirectURL:
+      type: object
+      required: 
+        - redirect_url
+      properties:
+        redirect_url:
+          type: string
+          format: url
+          example: https://google.com/...
+    UserData:
+      type: object
+      required: 
+        - user
+      properties:
+        user:
+          type: object
+          required: 
+            - uuid
+            - email
+            - slug
+            - ga
+          properties:
+            uuid:
+              type: string
+              format: uuid
+              example: UUID_VALUE
+            email:
+              type: string
+              format: email
+              example: official@hais.in
+            slug:
+              type: string
+              example: official
+            ga:
+              type: string
+              example: GA-VALUE
+
+    SlugData:
+      type: object
+      required:
+        - slug
+      properties:
+        slug:
+          type: string
+          example: official
+
+    ServiceData:
+      type: object
+      required:
+        - service
+        - url
+      properties:
+        service:
+          type: string
+          example: twitter
+        url:
+          type: string
+          example: https://twitter.com/398noetan
+
+    UserURLData:
+      type: object
+      required:
+        - slug
+        - services
+      properties:
+        slug:
+          type: string
+          example: official
+        services:
+          type: array
+          items:
+            type: object
+            required:
+              - service
+              - url
+            properties:
+              service:
+                type: string
+                example: twitter
+              url:
+                type: string
+                example: https://twitter.com/398noetan
+
+    URLData:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          example: https://twitter.com/398noetan
+      
+    ParameterMissing:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          example: Some parameter is missing.
+    Unauthorized:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          example: Unauthorized.
+    CSRFTokenInvalid:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          example: CSRF Token Invalid.
+    NotFound:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          example: User or Service is not found.
+    Conflict:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          example: This slug is already used.
+    InvalidFormat:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          example: This parameter is an invalid format.
+    TooManyRequests:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          example: Too many requests.
+    InternalServerError:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          example: Internal Server Error.
