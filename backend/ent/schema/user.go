@@ -1,6 +1,13 @@
 package schema
 
-import "entgo.io/ent"
+import (
+	"entgo.io/ent"
+	"entgo.io/ent/dialect/entsql"
+	"entgo.io/ent/schema/edge"
+	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/mixin"
+	"github.com/google/uuid"
+)
 
 // User holds the schema definition for the User entity.
 type User struct {
@@ -9,10 +16,38 @@ type User struct {
 
 // Fields of the User.
 func (User) Fields() []ent.Field {
-	return nil
+	return []ent.Field{
+		field.UUID("id", uuid.UUID{}).
+			StorageKey("user_id").
+			Unique(),
+		field.String("email").
+			MaxLen(100).
+			NotEmpty().
+			Unique(),
+		field.String("slug").
+			MaxLen(30).
+			NotEmpty().
+			Unique(),
+		field.String("ga").
+			MaxLen(100).
+			Optional().
+			Nillable(),
+	}
+}
+
+// Mixin of the Url.
+func (User) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		mixin.Time{},
+	}
 }
 
 // Edges of the User.
 func (User) Edges() []ent.Edge {
-	return nil
+	return []ent.Edge{
+		edge.To("id", Url.Type).
+			Annotations(entsql.Annotation{
+				OnDelete: entsql.Cascade,
+			}),
+	}
 }

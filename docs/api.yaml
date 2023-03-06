@@ -17,6 +17,10 @@ info:
 tags:
   - name: OAuth
     description: Sign in or Sign up
+  - name: profile
+    description: User Profile
+  - name: ga
+    description: Google Analytics
   - name: slug
     description: slug
   - name: service
@@ -38,7 +42,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/OAuthRedirectURL'
+                $ref: "#/components/schemas/OAuthRedirectURL"
         "500":
           description: Internal Server Error.
           content:
@@ -59,7 +63,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserData'
+                $ref: "#/components/schemas/UserData"
         "403":
           description: CSRF Token Invalid.
           content:
@@ -72,6 +76,85 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InternalServerError"
+  /profile:
+    get:
+      tags:
+        - profile
+      summary: Get My Profile
+      operationId: getProfile
+      description: |
+        ログイン中のユーザー情報を取得します
+      responses:
+        "200":
+          description: "ログイン中のユーザー情報"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserData"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+  /ga:
+    post:
+      tags:
+        - ga
+      summary: Change GA
+      operationId: changeGA
+      description: |
+        Google Analyticsのコードを変更します
+      responses:
+        "200":
+          description: "新しいGoogle Analyticsコード"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GAData"
+        "400":
+          description: Some parameter is missing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParameterMissing"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "422":
+          description: This slug is an invalid format
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvalidFormat"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GAData"
+        description: 新しいGAコード
+
   /slug:
     get:
       tags:
@@ -86,7 +169,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SlugData'
+                $ref: "#/components/schemas/SlugData"
         "401":
           description: Unauthorized
           content:
@@ -118,7 +201,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SlugData'
+                $ref: "#/components/schemas/SlugData"
         "400":
           description: Some parameter is missing
           content:
@@ -159,7 +242,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SlugData'
+              $ref: "#/components/schemas/SlugData"
         description: 新しいスラッグ
   /service:
     get:
@@ -175,7 +258,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserURLData'
+                $ref: "#/components/schemas/UserURLData"
         "401":
           description: Unauthorized
           content:
@@ -207,7 +290,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ServiceData'
+                $ref: "#/components/schemas/ServiceData"
         "400":
           description: Some parameter is missing.
           content:
@@ -248,7 +331,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ServiceData'
+              $ref: "#/components/schemas/ServiceData"
         description: 追加・変更するサービス
   /service/{service}:
     delete:
@@ -330,7 +413,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserURLData'
+                $ref: "#/components/schemas/UserURLData"
         "400":
           description: Some parameter is missing.
           content:
@@ -389,7 +472,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/URLData'
+                $ref: "#/components/schemas/URLData"
         "400":
           description: Some parameter is missing.
           content:
@@ -461,6 +544,14 @@ components:
             ga:
               type: string
               example: GA-VALUE
+    GAData:
+      type: object
+      required:
+        - slug
+      properties:
+        slug:
+          type: string
+          example: GA-VALUE
 
     SlugData:
       type: object
