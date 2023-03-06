@@ -10,12 +10,12 @@ import (
 var (
 	// UrlsColumns holds the columns for the "urls" table.
 	UrlsColumns = []*schema.Column{
-		{Name: "uuid", Type: field.TypeUUID, Unique: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "create_time", Type: field.TypeTime},
 		{Name: "update_time", Type: field.TypeTime},
 		{Name: "service", Type: field.TypeEnum, Enums: []string{"twitter", "youtube", "fanbox"}},
 		{Name: "url", Type: field.TypeString, Size: 2083},
-		{Name: "user_id", Type: field.TypeUUID},
+		{Name: "user_user_id", Type: field.TypeUUID},
 	}
 	// UrlsTable holds the schema information for the "urls" table.
 	UrlsTable = &schema.Table{
@@ -24,7 +24,7 @@ var (
 		PrimaryKey: []*schema.Column{UrlsColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "urls_users_id",
+				Symbol:     "urls_users_user_id",
 				Columns:    []*schema.Column{UrlsColumns[5]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.Cascade,
@@ -33,7 +33,7 @@ var (
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
-		{Name: "user_id", Type: field.TypeUUID, Unique: true},
+		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "create_time", Type: field.TypeTime},
 		{Name: "update_time", Type: field.TypeTime},
 		{Name: "email", Type: field.TypeString, Unique: true, Size: 100},

@@ -426,15 +426,15 @@ func (c *UserClient) GetX(ctx context.Context, id uuid.UUID) *User {
 	return obj
 }
 
-// QueryID queries the id edge of a User.
-func (c *UserClient) QueryID(u *User) *URLQuery {
+// QueryUserID queries the user_id edge of a User.
+func (c *UserClient) QueryUserID(u *User) *URLQuery {
 	query := (&URLClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := u.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(url.Table, url.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.IDTable, user.IDColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.UserIDTable, user.UserIDColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
 		return fromV, nil

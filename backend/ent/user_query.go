@@ -24,7 +24,7 @@ type UserQuery struct {
 	order      []OrderFunc
 	inters     []Interceptor
 	predicates []predicate.User
-	withID     *URLQuery
+	withUserID *URLQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -61,8 +61,8 @@ func (uq *UserQuery) Order(o ...OrderFunc) *UserQuery {
 	return uq
 }
 
-// QueryID chains the current query on the "id" edge.
-func (uq *UserQuery) QueryID() *URLQuery {
+// QueryUserID chains the current query on the "user_id" edge.
+func (uq *UserQuery) QueryUserID() *URLQuery {
 	query := (&URLClient{config: uq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := uq.prepareQuery(ctx); err != nil {
@@ -75,7 +75,7 @@ func (uq *UserQuery) QueryID() *URLQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(url.Table, url.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, user.IDTable, user.IDColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.UserIDTable, user.UserIDColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -275,21 +275,21 @@ func (uq *UserQuery) Clone() *UserQuery {
 		order:      append([]OrderFunc{}, uq.order...),
 		inters:     append([]Interceptor{}, uq.inters...),
 		predicates: append([]predicate.User{}, uq.predicates...),
-		withID:     uq.withID.Clone(),
+		withUserID: uq.withUserID.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
 	}
 }
 
-// WithID tells the query-builder to eager-load the nodes that are connected to
-// the "id" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithID(opts ...func(*URLQuery)) *UserQuery {
+// WithUserID tells the query-builder to eager-load the nodes that are connected to
+// the "user_id" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithUserID(opts ...func(*URLQuery)) *UserQuery {
 	query := (&URLClient{config: uq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	uq.withID = query
+	uq.withUserID = query
 	return uq
 }
 
@@ -372,7 +372,7 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
 		loadedTypes = [1]bool{
-			uq.withID != nil,
+			uq.withUserID != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -393,17 +393,17 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := uq.withID; query != nil {
-		if err := uq.loadID(ctx, query, nodes,
-			func(n *User) { n.Edges.ID = []*Url{} },
-			func(n *User, e *Url) { n.Edges.ID = append(n.Edges.ID, e) }); err != nil {
+	if query := uq.withUserID; query != nil {
+		if err := uq.loadUserID(ctx, query, nodes,
+			func(n *User) { n.Edges.UserID = []*Url{} },
+			func(n *User, e *Url) { n.Edges.UserID = append(n.Edges.UserID, e) }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (uq *UserQuery) loadID(ctx context.Context, query *URLQuery, nodes []*User, init func(*User), assign func(*User, *Url)) error {
+func (uq *UserQuery) loadUserID(ctx context.Context, query *URLQuery, nodes []*User, init func(*User), assign func(*User, *Url)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
@@ -415,20 +415,20 @@ func (uq *UserQuery) loadID(ctx context.Context, query *URLQuery, nodes []*User,
 	}
 	query.withFKs = true
 	query.Where(predicate.Url(func(s *sql.Selector) {
-		s.Where(sql.InValues(user.IDColumn, fks...))
+		s.Where(sql.InValues(user.UserIDColumn, fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.user_id
+		fk := n.user_user_id
 		if fk == nil {
-			return fmt.Errorf(`foreign-key "user_id" is nil for node %v`, n.ID)
+			return fmt.Errorf(`foreign-key "user_user_id" is nil for node %v`, n.ID)
 		}
 		node, ok := nodeids[*fk]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v for node %v`, *fk, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_user_id" returned %v for node %v`, *fk, n.ID)
 		}
 		assign(node, n)
 	}
