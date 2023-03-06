@@ -18,18 +18,18 @@ type Url struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
+	// CreateTime holds the value of the "create_time" field.
+	CreateTime time.Time `json:"create_time,omitempty"`
+	// UpdateTime holds the value of the "update_time" field.
+	UpdateTime time.Time `json:"update_time,omitempty"`
 	// Service holds the value of the "service" field.
 	Service url.Service `json:"service,omitempty"`
 	// URL holds the value of the "url" field.
 	URL string `json:"url,omitempty"`
-	// CreatedAt holds the value of the "created_at" field.
-	CreatedAt time.Time `json:"created_at,omitempty"`
-	// UpdatedAt holds the value of the "updated_at" field.
-	UpdatedAt time.Time `json:"updated_at,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UrlQuery when eager-loading is set.
-	Edges     UrlEdges `json:"edges"`
-	user_urls *uuid.UUID
+	Edges   UrlEdges `json:"edges"`
+	user_id *uuid.UUID
 }
 
 // UrlEdges holds the relations/edges for other nodes in the graph.
@@ -61,11 +61,11 @@ func (*Url) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case url.FieldService, url.FieldURL:
 			values[i] = new(sql.NullString)
-		case url.FieldCreatedAt, url.FieldUpdatedAt:
+		case url.FieldCreateTime, url.FieldUpdateTime:
 			values[i] = new(sql.NullTime)
 		case url.FieldID:
 			values[i] = new(uuid.UUID)
-		case url.ForeignKeys[0]: // user_urls
+		case url.ForeignKeys[0]: // user_id
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Url", columns[i])
@@ -88,6 +88,18 @@ func (u *Url) assignValues(columns []string, values []any) error {
 			} else if value != nil {
 				u.ID = *value
 			}
+		case url.FieldCreateTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field create_time", values[i])
+			} else if value.Valid {
+				u.CreateTime = value.Time
+			}
+		case url.FieldUpdateTime:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field update_time", values[i])
+			} else if value.Valid {
+				u.UpdateTime = value.Time
+			}
 		case url.FieldService:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field service", values[i])
@@ -100,24 +112,12 @@ func (u *Url) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.URL = value.String
 			}
-		case url.FieldCreatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field created_at", values[i])
-			} else if value.Valid {
-				u.CreatedAt = value.Time
-			}
-		case url.FieldUpdatedAt:
-			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
-			} else if value.Valid {
-				u.UpdatedAt = value.Time
-			}
 		case url.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field user_urls", values[i])
+				return fmt.Errorf("unexpected type %T for field user_id", values[i])
 			} else if value.Valid {
-				u.user_urls = new(uuid.UUID)
-				*u.user_urls = *value.S.(*uuid.UUID)
+				u.user_id = new(uuid.UUID)
+				*u.user_id = *value.S.(*uuid.UUID)
 			}
 		}
 	}
@@ -152,17 +152,17 @@ func (u *Url) String() string {
 	var builder strings.Builder
 	builder.WriteString("Url(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", u.ID))
+	builder.WriteString("create_time=")
+	builder.WriteString(u.CreateTime.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("update_time=")
+	builder.WriteString(u.UpdateTime.Format(time.ANSIC))
+	builder.WriteString(", ")
 	builder.WriteString("service=")
 	builder.WriteString(fmt.Sprintf("%v", u.Service))
 	builder.WriteString(", ")
 	builder.WriteString("url=")
 	builder.WriteString(u.URL)
-	builder.WriteString(", ")
-	builder.WriteString("created_at=")
-	builder.WriteString(u.CreatedAt.Format(time.ANSIC))
-	builder.WriteString(", ")
-	builder.WriteString("updated_at=")
-	builder.WriteString(u.UpdatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

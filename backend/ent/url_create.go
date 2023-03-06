@@ -22,6 +22,34 @@ type URLCreate struct {
 	hooks    []Hook
 }
 
+// SetCreateTime sets the "create_time" field.
+func (uc *URLCreate) SetCreateTime(t time.Time) *URLCreate {
+	uc.mutation.SetCreateTime(t)
+	return uc
+}
+
+// SetNillableCreateTime sets the "create_time" field if the given value is not nil.
+func (uc *URLCreate) SetNillableCreateTime(t *time.Time) *URLCreate {
+	if t != nil {
+		uc.SetCreateTime(*t)
+	}
+	return uc
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (uc *URLCreate) SetUpdateTime(t time.Time) *URLCreate {
+	uc.mutation.SetUpdateTime(t)
+	return uc
+}
+
+// SetNillableUpdateTime sets the "update_time" field if the given value is not nil.
+func (uc *URLCreate) SetNillableUpdateTime(t *time.Time) *URLCreate {
+	if t != nil {
+		uc.SetUpdateTime(*t)
+	}
+	return uc
+}
+
 // SetService sets the "service" field.
 func (uc *URLCreate) SetService(u url.Service) *URLCreate {
 	uc.mutation.SetService(u)
@@ -31,34 +59,6 @@ func (uc *URLCreate) SetService(u url.Service) *URLCreate {
 // SetURL sets the "url" field.
 func (uc *URLCreate) SetURL(s string) *URLCreate {
 	uc.mutation.SetURL(s)
-	return uc
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (uc *URLCreate) SetCreatedAt(t time.Time) *URLCreate {
-	uc.mutation.SetCreatedAt(t)
-	return uc
-}
-
-// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (uc *URLCreate) SetNillableCreatedAt(t *time.Time) *URLCreate {
-	if t != nil {
-		uc.SetCreatedAt(*t)
-	}
-	return uc
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (uc *URLCreate) SetUpdatedAt(t time.Time) *URLCreate {
-	uc.mutation.SetUpdatedAt(t)
-	return uc
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (uc *URLCreate) SetNillableUpdatedAt(t *time.Time) *URLCreate {
-	if t != nil {
-		uc.SetUpdatedAt(*t)
-	}
 	return uc
 }
 
@@ -114,18 +114,24 @@ func (uc *URLCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (uc *URLCreate) defaults() {
-	if _, ok := uc.mutation.CreatedAt(); !ok {
-		v := url.DefaultCreatedAt()
-		uc.mutation.SetCreatedAt(v)
+	if _, ok := uc.mutation.CreateTime(); !ok {
+		v := url.DefaultCreateTime()
+		uc.mutation.SetCreateTime(v)
 	}
-	if _, ok := uc.mutation.UpdatedAt(); !ok {
-		v := url.DefaultUpdatedAt()
-		uc.mutation.SetUpdatedAt(v)
+	if _, ok := uc.mutation.UpdateTime(); !ok {
+		v := url.DefaultUpdateTime()
+		uc.mutation.SetUpdateTime(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
 func (uc *URLCreate) check() error {
+	if _, ok := uc.mutation.CreateTime(); !ok {
+		return &ValidationError{Name: "create_time", err: errors.New(`ent: missing required field "Url.create_time"`)}
+	}
+	if _, ok := uc.mutation.UpdateTime(); !ok {
+		return &ValidationError{Name: "update_time", err: errors.New(`ent: missing required field "Url.update_time"`)}
+	}
 	if _, ok := uc.mutation.Service(); !ok {
 		return &ValidationError{Name: "service", err: errors.New(`ent: missing required field "Url.service"`)}
 	}
@@ -141,12 +147,6 @@ func (uc *URLCreate) check() error {
 		if err := url.URLValidator(v); err != nil {
 			return &ValidationError{Name: "url", err: fmt.Errorf(`ent: validator failed for field "Url.url": %w`, err)}
 		}
-	}
-	if _, ok := uc.mutation.CreatedAt(); !ok {
-		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Url.created_at"`)}
-	}
-	if _, ok := uc.mutation.UpdatedAt(); !ok {
-		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Url.updated_at"`)}
 	}
 	if _, ok := uc.mutation.UserIDID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required edge "Url.user_id"`)}
@@ -186,6 +186,14 @@ func (uc *URLCreate) createSpec() (*Url, *sqlgraph.CreateSpec) {
 		_node.ID = id
 		_spec.ID.Value = &id
 	}
+	if value, ok := uc.mutation.CreateTime(); ok {
+		_spec.SetField(url.FieldCreateTime, field.TypeTime, value)
+		_node.CreateTime = value
+	}
+	if value, ok := uc.mutation.UpdateTime(); ok {
+		_spec.SetField(url.FieldUpdateTime, field.TypeTime, value)
+		_node.UpdateTime = value
+	}
 	if value, ok := uc.mutation.Service(); ok {
 		_spec.SetField(url.FieldService, field.TypeEnum, value)
 		_node.Service = value
@@ -193,14 +201,6 @@ func (uc *URLCreate) createSpec() (*Url, *sqlgraph.CreateSpec) {
 	if value, ok := uc.mutation.URL(); ok {
 		_spec.SetField(url.FieldURL, field.TypeString, value)
 		_node.URL = value
-	}
-	if value, ok := uc.mutation.CreatedAt(); ok {
-		_spec.SetField(url.FieldCreatedAt, field.TypeTime, value)
-		_node.CreatedAt = value
-	}
-	if value, ok := uc.mutation.UpdatedAt(); ok {
-		_spec.SetField(url.FieldUpdatedAt, field.TypeTime, value)
-		_node.UpdatedAt = value
 	}
 	if nodes := uc.mutation.UserIDIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -219,7 +219,7 @@ func (uc *URLCreate) createSpec() (*Url, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.user_urls = &nodes[0]
+		_node.user_id = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

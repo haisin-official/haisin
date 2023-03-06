@@ -299,12 +299,12 @@ func (uq *URLQuery) WithUserID(opts ...func(*UserQuery)) *URLQuery {
 // Example:
 //
 //	var v []struct {
-//		Service url.Service `json:"service,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.URL.Query().
-//		GroupBy(url.FieldService).
+//		GroupBy(url.FieldCreateTime).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (uq *URLQuery) GroupBy(field string, fields ...string) *URLGroupBy {
@@ -322,11 +322,11 @@ func (uq *URLQuery) GroupBy(field string, fields ...string) *URLGroupBy {
 // Example:
 //
 //	var v []struct {
-//		Service url.Service `json:"service,omitempty"`
+//		CreateTime time.Time `json:"create_time,omitempty"`
 //	}
 //
 //	client.URL.Query().
-//		Select(url.FieldService).
+//		Select(url.FieldCreateTime).
 //		Scan(ctx, &v)
 func (uq *URLQuery) Select(fields ...string) *URLSelect {
 	uq.ctx.Fields = append(uq.ctx.Fields, fields...)
@@ -413,10 +413,10 @@ func (uq *URLQuery) loadUserID(ctx context.Context, query *UserQuery, nodes []*U
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Url)
 	for i := range nodes {
-		if nodes[i].user_urls == nil {
+		if nodes[i].user_id == nil {
 			continue
 		}
-		fk := *nodes[i].user_urls
+		fk := *nodes[i].user_id
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -433,7 +433,7 @@ func (uq *URLQuery) loadUserID(ctx context.Context, query *UserQuery, nodes []*U
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_urls" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)

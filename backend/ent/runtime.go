@@ -14,8 +14,21 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	urlMixin := schema.Url{}.Mixin()
+	urlMixinFields0 := urlMixin[0].Fields()
+	_ = urlMixinFields0
 	urlFields := schema.Url{}.Fields()
 	_ = urlFields
+	// urlDescCreateTime is the schema descriptor for create_time field.
+	urlDescCreateTime := urlMixinFields0[0].Descriptor()
+	// url.DefaultCreateTime holds the default value on creation for the create_time field.
+	url.DefaultCreateTime = urlDescCreateTime.Default.(func() time.Time)
+	// urlDescUpdateTime is the schema descriptor for update_time field.
+	urlDescUpdateTime := urlMixinFields0[1].Descriptor()
+	// url.DefaultUpdateTime holds the default value on creation for the update_time field.
+	url.DefaultUpdateTime = urlDescUpdateTime.Default.(func() time.Time)
+	// url.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	url.UpdateDefaultUpdateTime = urlDescUpdateTime.UpdateDefault.(func() time.Time)
 	// urlDescURL is the schema descriptor for url field.
 	urlDescURL := urlFields[2].Descriptor()
 	// url.URLValidator is a validator for the "url" field. It is called by the builders before save.
@@ -34,16 +47,21 @@ func init() {
 			return nil
 		}
 	}()
-	// urlDescCreatedAt is the schema descriptor for created_at field.
-	urlDescCreatedAt := urlFields[3].Descriptor()
-	// url.DefaultCreatedAt holds the default value on creation for the created_at field.
-	url.DefaultCreatedAt = urlDescCreatedAt.Default.(func() time.Time)
-	// urlDescUpdatedAt is the schema descriptor for updated_at field.
-	urlDescUpdatedAt := urlFields[4].Descriptor()
-	// url.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	url.DefaultUpdatedAt = urlDescUpdatedAt.Default.(func() time.Time)
+	userMixin := schema.User{}.Mixin()
+	userMixinFields0 := userMixin[0].Fields()
+	_ = userMixinFields0
 	userFields := schema.User{}.Fields()
 	_ = userFields
+	// userDescCreateTime is the schema descriptor for create_time field.
+	userDescCreateTime := userMixinFields0[0].Descriptor()
+	// user.DefaultCreateTime holds the default value on creation for the create_time field.
+	user.DefaultCreateTime = userDescCreateTime.Default.(func() time.Time)
+	// userDescUpdateTime is the schema descriptor for update_time field.
+	userDescUpdateTime := userMixinFields0[1].Descriptor()
+	// user.DefaultUpdateTime holds the default value on creation for the update_time field.
+	user.DefaultUpdateTime = userDescUpdateTime.Default.(func() time.Time)
+	// user.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	user.UpdateDefaultUpdateTime = userDescUpdateTime.UpdateDefault.(func() time.Time)
 	// userDescEmail is the schema descriptor for email field.
 	userDescEmail := userFields[1].Descriptor()
 	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
@@ -84,12 +102,4 @@ func init() {
 	userDescGa := userFields[3].Descriptor()
 	// user.GaValidator is a validator for the "ga" field. It is called by the builders before save.
 	user.GaValidator = userDescGa.Validators[0].(func(string) error)
-	// userDescCreatedAt is the schema descriptor for created_at field.
-	userDescCreatedAt := userFields[4].Descriptor()
-	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
-	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
-	// userDescUpdatedAt is the schema descriptor for updated_at field.
-	userDescUpdatedAt := userFields[5].Descriptor()
-	// user.DefaultUpdatedAt holds the default value on creation for the updated_at field.
-	user.DefaultUpdatedAt = userDescUpdatedAt.Default.(func() time.Time)
 }

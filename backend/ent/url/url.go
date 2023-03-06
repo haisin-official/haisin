@@ -11,15 +11,15 @@ const (
 	// Label holds the string label denoting the url type in the database.
 	Label = "url"
 	// FieldID holds the string denoting the id field in the database.
-	FieldID = "urlid"
+	FieldID = "uuid"
+	// FieldCreateTime holds the string denoting the create_time field in the database.
+	FieldCreateTime = "create_time"
+	// FieldUpdateTime holds the string denoting the update_time field in the database.
+	FieldUpdateTime = "update_time"
 	// FieldService holds the string denoting the service field in the database.
 	FieldService = "service"
 	// FieldURL holds the string denoting the url field in the database.
 	FieldURL = "url"
-	// FieldCreatedAt holds the string denoting the created_at field in the database.
-	FieldCreatedAt = "created_at"
-	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
-	FieldUpdatedAt = "updated_at"
 	// EdgeUserID holds the string denoting the user_id edge name in mutations.
 	EdgeUserID = "user_id"
 	// UserFieldID holds the string denoting the ID field of the User.
@@ -32,22 +32,22 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	UserIDInverseTable = "users"
 	// UserIDColumn is the table column denoting the user_id relation/edge.
-	UserIDColumn = "user_urls"
+	UserIDColumn = "user_id"
 )
 
 // Columns holds all SQL columns for url fields.
 var Columns = []string{
 	FieldID,
+	FieldCreateTime,
+	FieldUpdateTime,
 	FieldService,
 	FieldURL,
-	FieldCreatedAt,
-	FieldUpdatedAt,
 }
 
 // ForeignKeys holds the SQL foreign-keys that are owned by the "urls"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
-	"user_urls",
+	"user_id",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -66,12 +66,14 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// DefaultCreateTime holds the default value on creation for the "create_time" field.
+	DefaultCreateTime func() time.Time
+	// DefaultUpdateTime holds the default value on creation for the "update_time" field.
+	DefaultUpdateTime func() time.Time
+	// UpdateDefaultUpdateTime holds the default value on update for the "update_time" field.
+	UpdateDefaultUpdateTime func() time.Time
 	// URLValidator is a validator for the "url" field. It is called by the builders before save.
 	URLValidator func(string) error
-	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
-	DefaultCreatedAt func() time.Time
-	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
-	DefaultUpdatedAt func() time.Time
 )
 
 // Service defines the type for the "service" enum field.

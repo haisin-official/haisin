@@ -30,6 +30,12 @@ func (uu *URLUpdate) Where(ps ...predicate.Url) *URLUpdate {
 	return uu
 }
 
+// SetUpdateTime sets the "update_time" field.
+func (uu *URLUpdate) SetUpdateTime(t time.Time) *URLUpdate {
+	uu.mutation.SetUpdateTime(t)
+	return uu
+}
+
 // SetService sets the "service" field.
 func (uu *URLUpdate) SetService(u url.Service) *URLUpdate {
 	uu.mutation.SetService(u)
@@ -39,34 +45,6 @@ func (uu *URLUpdate) SetService(u url.Service) *URLUpdate {
 // SetURL sets the "url" field.
 func (uu *URLUpdate) SetURL(s string) *URLUpdate {
 	uu.mutation.SetURL(s)
-	return uu
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (uu *URLUpdate) SetCreatedAt(t time.Time) *URLUpdate {
-	uu.mutation.SetCreatedAt(t)
-	return uu
-}
-
-// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (uu *URLUpdate) SetNillableCreatedAt(t *time.Time) *URLUpdate {
-	if t != nil {
-		uu.SetCreatedAt(*t)
-	}
-	return uu
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (uu *URLUpdate) SetUpdatedAt(t time.Time) *URLUpdate {
-	uu.mutation.SetUpdatedAt(t)
-	return uu
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (uu *URLUpdate) SetNillableUpdatedAt(t *time.Time) *URLUpdate {
-	if t != nil {
-		uu.SetUpdatedAt(*t)
-	}
 	return uu
 }
 
@@ -94,6 +72,7 @@ func (uu *URLUpdate) ClearUserID() *URLUpdate {
 
 // Save executes the query and returns the number of nodes affected by the update operation.
 func (uu *URLUpdate) Save(ctx context.Context) (int, error) {
+	uu.defaults()
 	return withHooks[int, URLMutation](ctx, uu.sqlSave, uu.mutation, uu.hooks)
 }
 
@@ -116,6 +95,14 @@ func (uu *URLUpdate) Exec(ctx context.Context) error {
 func (uu *URLUpdate) ExecX(ctx context.Context) {
 	if err := uu.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (uu *URLUpdate) defaults() {
+	if _, ok := uu.mutation.UpdateTime(); !ok {
+		v := url.UpdateDefaultUpdateTime()
+		uu.mutation.SetUpdateTime(v)
 	}
 }
 
@@ -149,17 +136,14 @@ func (uu *URLUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
+	if value, ok := uu.mutation.UpdateTime(); ok {
+		_spec.SetField(url.FieldUpdateTime, field.TypeTime, value)
+	}
 	if value, ok := uu.mutation.Service(); ok {
 		_spec.SetField(url.FieldService, field.TypeEnum, value)
 	}
 	if value, ok := uu.mutation.URL(); ok {
 		_spec.SetField(url.FieldURL, field.TypeString, value)
-	}
-	if value, ok := uu.mutation.CreatedAt(); ok {
-		_spec.SetField(url.FieldCreatedAt, field.TypeTime, value)
-	}
-	if value, ok := uu.mutation.UpdatedAt(); ok {
-		_spec.SetField(url.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if uu.mutation.UserIDCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -216,6 +200,12 @@ type URLUpdateOne struct {
 	mutation *URLMutation
 }
 
+// SetUpdateTime sets the "update_time" field.
+func (uuo *URLUpdateOne) SetUpdateTime(t time.Time) *URLUpdateOne {
+	uuo.mutation.SetUpdateTime(t)
+	return uuo
+}
+
 // SetService sets the "service" field.
 func (uuo *URLUpdateOne) SetService(u url.Service) *URLUpdateOne {
 	uuo.mutation.SetService(u)
@@ -225,34 +215,6 @@ func (uuo *URLUpdateOne) SetService(u url.Service) *URLUpdateOne {
 // SetURL sets the "url" field.
 func (uuo *URLUpdateOne) SetURL(s string) *URLUpdateOne {
 	uuo.mutation.SetURL(s)
-	return uuo
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (uuo *URLUpdateOne) SetCreatedAt(t time.Time) *URLUpdateOne {
-	uuo.mutation.SetCreatedAt(t)
-	return uuo
-}
-
-// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (uuo *URLUpdateOne) SetNillableCreatedAt(t *time.Time) *URLUpdateOne {
-	if t != nil {
-		uuo.SetCreatedAt(*t)
-	}
-	return uuo
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (uuo *URLUpdateOne) SetUpdatedAt(t time.Time) *URLUpdateOne {
-	uuo.mutation.SetUpdatedAt(t)
-	return uuo
-}
-
-// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
-func (uuo *URLUpdateOne) SetNillableUpdatedAt(t *time.Time) *URLUpdateOne {
-	if t != nil {
-		uuo.SetUpdatedAt(*t)
-	}
 	return uuo
 }
 
@@ -293,6 +255,7 @@ func (uuo *URLUpdateOne) Select(field string, fields ...string) *URLUpdateOne {
 
 // Save executes the query and returns the updated Url entity.
 func (uuo *URLUpdateOne) Save(ctx context.Context) (*Url, error) {
+	uuo.defaults()
 	return withHooks[*Url, URLMutation](ctx, uuo.sqlSave, uuo.mutation, uuo.hooks)
 }
 
@@ -315,6 +278,14 @@ func (uuo *URLUpdateOne) Exec(ctx context.Context) error {
 func (uuo *URLUpdateOne) ExecX(ctx context.Context) {
 	if err := uuo.Exec(ctx); err != nil {
 		panic(err)
+	}
+}
+
+// defaults sets the default values of the builder before save.
+func (uuo *URLUpdateOne) defaults() {
+	if _, ok := uuo.mutation.UpdateTime(); !ok {
+		v := url.UpdateDefaultUpdateTime()
+		uuo.mutation.SetUpdateTime(v)
 	}
 }
 
@@ -365,17 +336,14 @@ func (uuo *URLUpdateOne) sqlSave(ctx context.Context) (_node *Url, err error) {
 			}
 		}
 	}
+	if value, ok := uuo.mutation.UpdateTime(); ok {
+		_spec.SetField(url.FieldUpdateTime, field.TypeTime, value)
+	}
 	if value, ok := uuo.mutation.Service(); ok {
 		_spec.SetField(url.FieldService, field.TypeEnum, value)
 	}
 	if value, ok := uuo.mutation.URL(); ok {
 		_spec.SetField(url.FieldURL, field.TypeString, value)
-	}
-	if value, ok := uuo.mutation.CreatedAt(); ok {
-		_spec.SetField(url.FieldCreatedAt, field.TypeTime, value)
-	}
-	if value, ok := uuo.mutation.UpdatedAt(); ok {
-		_spec.SetField(url.FieldUpdatedAt, field.TypeTime, value)
 	}
 	if uuo.mutation.UserIDCleared() {
 		edge := &sqlgraph.EdgeSpec{

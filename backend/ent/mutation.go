@@ -9,13 +9,12 @@ import (
 	"sync"
 	"time"
 
+	"entgo.io/ent"
+	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/haisin-official/haisin/ent/predicate"
 	"github.com/haisin-official/haisin/ent/url"
 	"github.com/haisin-official/haisin/ent/user"
-
-	"entgo.io/ent"
-	"entgo.io/ent/dialect/sql"
 )
 
 const (
@@ -37,10 +36,10 @@ type URLMutation struct {
 	op             Op
 	typ            string
 	id             *uuid.UUID
+	create_time    *time.Time
+	update_time    *time.Time
 	service        *url.Service
 	url            *string
-	created_at     *time.Time
-	updated_at     *time.Time
 	clearedFields  map[string]struct{}
 	user_id        *uuid.UUID
 	cleareduser_id bool
@@ -153,6 +152,78 @@ func (m *URLMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	}
 }
 
+// SetCreateTime sets the "create_time" field.
+func (m *URLMutation) SetCreateTime(t time.Time) {
+	m.create_time = &t
+}
+
+// CreateTime returns the value of the "create_time" field in the mutation.
+func (m *URLMutation) CreateTime() (r time.Time, exists bool) {
+	v := m.create_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreateTime returns the old "create_time" field's value of the Url entity.
+// If the Url object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *URLMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
+	}
+	return oldValue.CreateTime, nil
+}
+
+// ResetCreateTime resets all changes to the "create_time" field.
+func (m *URLMutation) ResetCreateTime() {
+	m.create_time = nil
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (m *URLMutation) SetUpdateTime(t time.Time) {
+	m.update_time = &t
+}
+
+// UpdateTime returns the value of the "update_time" field in the mutation.
+func (m *URLMutation) UpdateTime() (r time.Time, exists bool) {
+	v := m.update_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdateTime returns the old "update_time" field's value of the Url entity.
+// If the Url object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *URLMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
+	}
+	return oldValue.UpdateTime, nil
+}
+
+// ResetUpdateTime resets all changes to the "update_time" field.
+func (m *URLMutation) ResetUpdateTime() {
+	m.update_time = nil
+}
+
 // SetService sets the "service" field.
 func (m *URLMutation) SetService(u url.Service) {
 	m.service = &u
@@ -223,78 +294,6 @@ func (m *URLMutation) OldURL(ctx context.Context) (v string, err error) {
 // ResetURL resets all changes to the "url" field.
 func (m *URLMutation) ResetURL() {
 	m.url = nil
-}
-
-// SetCreatedAt sets the "created_at" field.
-func (m *URLMutation) SetCreatedAt(t time.Time) {
-	m.created_at = &t
-}
-
-// CreatedAt returns the value of the "created_at" field in the mutation.
-func (m *URLMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.created_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "created_at" field's value of the Url entity.
-// If the Url object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *URLMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "created_at" field.
-func (m *URLMutation) ResetCreatedAt() {
-	m.created_at = nil
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (m *URLMutation) SetUpdatedAt(t time.Time) {
-	m.updated_at = &t
-}
-
-// UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *URLMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updated_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updated_at" field's value of the Url entity.
-// If the Url object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *URLMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *URLMutation) ResetUpdatedAt() {
-	m.updated_at = nil
 }
 
 // SetUserIDID sets the "user_id" edge to the User entity by id.
@@ -371,17 +370,17 @@ func (m *URLMutation) Type() string {
 // AddedFields().
 func (m *URLMutation) Fields() []string {
 	fields := make([]string, 0, 4)
+	if m.create_time != nil {
+		fields = append(fields, url.FieldCreateTime)
+	}
+	if m.update_time != nil {
+		fields = append(fields, url.FieldUpdateTime)
+	}
 	if m.service != nil {
 		fields = append(fields, url.FieldService)
 	}
 	if m.url != nil {
 		fields = append(fields, url.FieldURL)
-	}
-	if m.created_at != nil {
-		fields = append(fields, url.FieldCreatedAt)
-	}
-	if m.updated_at != nil {
-		fields = append(fields, url.FieldUpdatedAt)
 	}
 	return fields
 }
@@ -391,14 +390,14 @@ func (m *URLMutation) Fields() []string {
 // schema.
 func (m *URLMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case url.FieldCreateTime:
+		return m.CreateTime()
+	case url.FieldUpdateTime:
+		return m.UpdateTime()
 	case url.FieldService:
 		return m.Service()
 	case url.FieldURL:
 		return m.URL()
-	case url.FieldCreatedAt:
-		return m.CreatedAt()
-	case url.FieldUpdatedAt:
-		return m.UpdatedAt()
 	}
 	return nil, false
 }
@@ -408,14 +407,14 @@ func (m *URLMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *URLMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case url.FieldCreateTime:
+		return m.OldCreateTime(ctx)
+	case url.FieldUpdateTime:
+		return m.OldUpdateTime(ctx)
 	case url.FieldService:
 		return m.OldService(ctx)
 	case url.FieldURL:
 		return m.OldURL(ctx)
-	case url.FieldCreatedAt:
-		return m.OldCreatedAt(ctx)
-	case url.FieldUpdatedAt:
-		return m.OldUpdatedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Url field %s", name)
 }
@@ -425,6 +424,20 @@ func (m *URLMutation) OldField(ctx context.Context, name string) (ent.Value, err
 // type.
 func (m *URLMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case url.FieldCreateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreateTime(v)
+		return nil
+	case url.FieldUpdateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdateTime(v)
+		return nil
 	case url.FieldService:
 		v, ok := value.(url.Service)
 		if !ok {
@@ -438,20 +451,6 @@ func (m *URLMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetURL(v)
-		return nil
-	case url.FieldCreatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreatedAt(v)
-		return nil
-	case url.FieldUpdatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdatedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Url field %s", name)
@@ -502,17 +501,17 @@ func (m *URLMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *URLMutation) ResetField(name string) error {
 	switch name {
+	case url.FieldCreateTime:
+		m.ResetCreateTime()
+		return nil
+	case url.FieldUpdateTime:
+		m.ResetUpdateTime()
+		return nil
 	case url.FieldService:
 		m.ResetService()
 		return nil
 	case url.FieldURL:
 		m.ResetURL()
-		return nil
-	case url.FieldCreatedAt:
-		m.ResetCreatedAt()
-		return nil
-	case url.FieldUpdatedAt:
-		m.ResetUpdatedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Url field %s", name)
@@ -598,15 +597,15 @@ type UserMutation struct {
 	op            Op
 	typ           string
 	id            *uuid.UUID
+	create_time   *time.Time
+	update_time   *time.Time
 	email         *string
 	slug          *string
 	ga            *string
-	created_at    *time.Time
-	updated_at    *time.Time
 	clearedFields map[string]struct{}
-	urls          map[uuid.UUID]struct{}
-	removedurls   map[uuid.UUID]struct{}
-	clearedurls   bool
+	id            map[uuid.UUID]struct{}
+	removedid     map[uuid.UUID]struct{}
+	clearedid     bool
 	done          bool
 	oldValue      func(context.Context) (*User, error)
 	predicates    []predicate.User
@@ -714,6 +713,78 @@ func (m *UserMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// SetCreateTime sets the "create_time" field.
+func (m *UserMutation) SetCreateTime(t time.Time) {
+	m.create_time = &t
+}
+
+// CreateTime returns the value of the "create_time" field in the mutation.
+func (m *UserMutation) CreateTime() (r time.Time, exists bool) {
+	v := m.create_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreateTime returns the old "create_time" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreateTime: %w", err)
+	}
+	return oldValue.CreateTime, nil
+}
+
+// ResetCreateTime resets all changes to the "create_time" field.
+func (m *UserMutation) ResetCreateTime() {
+	m.create_time = nil
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (m *UserMutation) SetUpdateTime(t time.Time) {
+	m.update_time = &t
+}
+
+// UpdateTime returns the value of the "update_time" field in the mutation.
+func (m *UserMutation) UpdateTime() (r time.Time, exists bool) {
+	v := m.update_time
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdateTime returns the old "update_time" field's value of the User entity.
+// If the User object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UserMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdateTime requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdateTime: %w", err)
+	}
+	return oldValue.UpdateTime, nil
+}
+
+// ResetUpdateTime resets all changes to the "update_time" field.
+func (m *UserMutation) ResetUpdateTime() {
+	m.update_time = nil
 }
 
 // SetEmail sets the "email" field.
@@ -837,130 +908,58 @@ func (m *UserMutation) ResetGa() {
 	delete(m.clearedFields, user.FieldGa)
 }
 
-// SetCreatedAt sets the "created_at" field.
-func (m *UserMutation) SetCreatedAt(t time.Time) {
-	m.created_at = &t
-}
-
-// CreatedAt returns the value of the "created_at" field in the mutation.
-func (m *UserMutation) CreatedAt() (r time.Time, exists bool) {
-	v := m.created_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldCreatedAt returns the old "created_at" field's value of the User entity.
-// If the User object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
-	}
-	return oldValue.CreatedAt, nil
-}
-
-// ResetCreatedAt resets all changes to the "created_at" field.
-func (m *UserMutation) ResetCreatedAt() {
-	m.created_at = nil
-}
-
-// SetUpdatedAt sets the "updated_at" field.
-func (m *UserMutation) SetUpdatedAt(t time.Time) {
-	m.updated_at = &t
-}
-
-// UpdatedAt returns the value of the "updated_at" field in the mutation.
-func (m *UserMutation) UpdatedAt() (r time.Time, exists bool) {
-	v := m.updated_at
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldUpdatedAt returns the old "updated_at" field's value of the User entity.
-// If the User object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *UserMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
-	}
-	return oldValue.UpdatedAt, nil
-}
-
-// ResetUpdatedAt resets all changes to the "updated_at" field.
-func (m *UserMutation) ResetUpdatedAt() {
-	m.updated_at = nil
-}
-
-// AddURLIDs adds the "urls" edge to the Url entity by ids.
-func (m *UserMutation) AddURLIDs(ids ...uuid.UUID) {
-	if m.urls == nil {
-		m.urls = make(map[uuid.UUID]struct{})
+// AddIDIDs adds the "id" edge to the Url entity by ids.
+func (m *UserMutation) AddIDIDs(ids ...uuid.UUID) {
+	if m.id == nil {
+		m.id = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		m.urls[ids[i]] = struct{}{}
+		m.id[ids[i]] = struct{}{}
 	}
 }
 
-// ClearUrls clears the "urls" edge to the Url entity.
-func (m *UserMutation) ClearUrls() {
-	m.clearedurls = true
+// ClearID clears the "id" edge to the Url entity.
+func (m *UserMutation) ClearID() {
+	m.clearedid = true
 }
 
-// UrlsCleared reports if the "urls" edge to the Url entity was cleared.
-func (m *UserMutation) UrlsCleared() bool {
-	return m.clearedurls
+// IDCleared reports if the "id" edge to the Url entity was cleared.
+func (m *UserMutation) IDCleared() bool {
+	return m.clearedid
 }
 
-// RemoveURLIDs removes the "urls" edge to the Url entity by IDs.
-func (m *UserMutation) RemoveURLIDs(ids ...uuid.UUID) {
-	if m.removedurls == nil {
-		m.removedurls = make(map[uuid.UUID]struct{})
+// RemoveIDIDs removes the "id" edge to the Url entity by IDs.
+func (m *UserMutation) RemoveIDIDs(ids ...uuid.UUID) {
+	if m.removedid == nil {
+		m.removedid = make(map[uuid.UUID]struct{})
 	}
 	for i := range ids {
-		delete(m.urls, ids[i])
-		m.removedurls[ids[i]] = struct{}{}
+		delete(m.id, ids[i])
+		m.removedid[ids[i]] = struct{}{}
 	}
 }
 
-// RemovedUrls returns the removed IDs of the "urls" edge to the Url entity.
-func (m *UserMutation) RemovedUrlsIDs() (ids []uuid.UUID) {
-	for id := range m.removedurls {
+// RemovedID returns the removed IDs of the "id" edge to the Url entity.
+func (m *UserMutation) RemovedIDIDs() (ids []uuid.UUID) {
+	for id := range m.removedid {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// UrlsIDs returns the "urls" edge IDs in the mutation.
-func (m *UserMutation) UrlsIDs() (ids []uuid.UUID) {
-	for id := range m.urls {
+// IDIDs returns the "id" edge IDs in the mutation.
+func (m *UserMutation) IDIDs() (ids []uuid.UUID) {
+	for id := range m.id {
 		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetUrls resets all changes to the "urls" edge.
-func (m *UserMutation) ResetUrls() {
-	m.urls = nil
-	m.clearedurls = false
-	m.removedurls = nil
+// ResetID resets all changes to the "id" edge.
+func (m *UserMutation) ResetID() {
+	m.id = nil
+	m.clearedid = false
+	m.removedid = nil
 }
 
 // Where appends a list predicates to the UserMutation builder.
@@ -998,6 +997,12 @@ func (m *UserMutation) Type() string {
 // AddedFields().
 func (m *UserMutation) Fields() []string {
 	fields := make([]string, 0, 5)
+	if m.create_time != nil {
+		fields = append(fields, user.FieldCreateTime)
+	}
+	if m.update_time != nil {
+		fields = append(fields, user.FieldUpdateTime)
+	}
 	if m.email != nil {
 		fields = append(fields, user.FieldEmail)
 	}
@@ -1007,12 +1012,6 @@ func (m *UserMutation) Fields() []string {
 	if m.ga != nil {
 		fields = append(fields, user.FieldGa)
 	}
-	if m.created_at != nil {
-		fields = append(fields, user.FieldCreatedAt)
-	}
-	if m.updated_at != nil {
-		fields = append(fields, user.FieldUpdatedAt)
-	}
 	return fields
 }
 
@@ -1021,16 +1020,16 @@ func (m *UserMutation) Fields() []string {
 // schema.
 func (m *UserMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case user.FieldCreateTime:
+		return m.CreateTime()
+	case user.FieldUpdateTime:
+		return m.UpdateTime()
 	case user.FieldEmail:
 		return m.Email()
 	case user.FieldSlug:
 		return m.Slug()
 	case user.FieldGa:
 		return m.Ga()
-	case user.FieldCreatedAt:
-		return m.CreatedAt()
-	case user.FieldUpdatedAt:
-		return m.UpdatedAt()
 	}
 	return nil, false
 }
@@ -1040,16 +1039,16 @@ func (m *UserMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case user.FieldCreateTime:
+		return m.OldCreateTime(ctx)
+	case user.FieldUpdateTime:
+		return m.OldUpdateTime(ctx)
 	case user.FieldEmail:
 		return m.OldEmail(ctx)
 	case user.FieldSlug:
 		return m.OldSlug(ctx)
 	case user.FieldGa:
 		return m.OldGa(ctx)
-	case user.FieldCreatedAt:
-		return m.OldCreatedAt(ctx)
-	case user.FieldUpdatedAt:
-		return m.OldUpdatedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown User field %s", name)
 }
@@ -1059,6 +1058,20 @@ func (m *UserMutation) OldField(ctx context.Context, name string) (ent.Value, er
 // type.
 func (m *UserMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case user.FieldCreateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreateTime(v)
+		return nil
+	case user.FieldUpdateTime:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdateTime(v)
+		return nil
 	case user.FieldEmail:
 		v, ok := value.(string)
 		if !ok {
@@ -1079,20 +1092,6 @@ func (m *UserMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetGa(v)
-		return nil
-	case user.FieldCreatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetCreatedAt(v)
-		return nil
-	case user.FieldUpdatedAt:
-		v, ok := value.(time.Time)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetUpdatedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
@@ -1152,6 +1151,12 @@ func (m *UserMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *UserMutation) ResetField(name string) error {
 	switch name {
+	case user.FieldCreateTime:
+		m.ResetCreateTime()
+		return nil
+	case user.FieldUpdateTime:
+		m.ResetUpdateTime()
+		return nil
 	case user.FieldEmail:
 		m.ResetEmail()
 		return nil
@@ -1161,12 +1166,6 @@ func (m *UserMutation) ResetField(name string) error {
 	case user.FieldGa:
 		m.ResetGa()
 		return nil
-	case user.FieldCreatedAt:
-		m.ResetCreatedAt()
-		return nil
-	case user.FieldUpdatedAt:
-		m.ResetUpdatedAt()
-		return nil
 	}
 	return fmt.Errorf("unknown User field %s", name)
 }
@@ -1174,8 +1173,8 @@ func (m *UserMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.urls != nil {
-		edges = append(edges, user.EdgeUrls)
+	if m.id != nil {
+		edges = append(edges, user.EdgeID)
 	}
 	return edges
 }
@@ -1184,9 +1183,9 @@ func (m *UserMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *UserMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case user.EdgeUrls:
-		ids := make([]ent.Value, 0, len(m.urls))
-		for id := range m.urls {
+	case user.EdgeID:
+		ids := make([]ent.Value, 0, len(m.id))
+		for id := range m.id {
 			ids = append(ids, id)
 		}
 		return ids
@@ -1197,8 +1196,8 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.removedurls != nil {
-		edges = append(edges, user.EdgeUrls)
+	if m.removedid != nil {
+		edges = append(edges, user.EdgeID)
 	}
 	return edges
 }
@@ -1207,9 +1206,9 @@ func (m *UserMutation) RemovedEdges() []string {
 // the given name in this mutation.
 func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 	switch name {
-	case user.EdgeUrls:
-		ids := make([]ent.Value, 0, len(m.removedurls))
-		for id := range m.removedurls {
+	case user.EdgeID:
+		ids := make([]ent.Value, 0, len(m.removedid))
+		for id := range m.removedid {
 			ids = append(ids, id)
 		}
 		return ids
@@ -1220,8 +1219,8 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 1)
-	if m.clearedurls {
-		edges = append(edges, user.EdgeUrls)
+	if m.clearedid {
+		edges = append(edges, user.EdgeID)
 	}
 	return edges
 }
@@ -1230,8 +1229,8 @@ func (m *UserMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *UserMutation) EdgeCleared(name string) bool {
 	switch name {
-	case user.EdgeUrls:
-		return m.clearedurls
+	case user.EdgeID:
+		return m.clearedid
 	}
 	return false
 }
@@ -1248,8 +1247,8 @@ func (m *UserMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *UserMutation) ResetEdge(name string) error {
 	switch name {
-	case user.EdgeUrls:
-		m.ResetUrls()
+	case user.EdgeID:
+		m.ResetID()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)
