@@ -18,7 +18,7 @@ type Url struct {
 func (Url) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
-			StorageKey("urlid").
+			StorageKey("uuid").
 			Unique(),
 		field.Enum("service").
 			Values("twitter", "youtube", "fanbox"),
