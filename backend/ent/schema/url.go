@@ -41,6 +41,6 @@ func (Url) Edges() []ent.Edge {
 		edge.From("user_id", User.Type).
 			Unique().
 			Required().
-			Ref("urls"),
+			Ref("id"),
 	}
 }
