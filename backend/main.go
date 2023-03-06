@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/haisin-official/haisin/config"
-	"github.com/haisin-official/haisin/ent"
+	"github.com/haisin-official/haisin/database"
 	"github.com/haisin-official/haisin/routes"
 	_ "github.com/lib/pq"
 )
@@ -15,13 +14,8 @@ func main() {
 	// Connect to postgresql
 	dbType := config.GetEnv("DB_TYPE")
 	dbDSN := config.GetEnv("DB_DSN")
-
-	client, err := ent.Open(dbType, dbDSN)
-	if err != nil {
-		log.Fatalf("failed opening connection to postgres: %v", err)
-	}
-	fmt.Println("Successful connect to postgres ✅")
-	defer client.Close()
+	database.InitDB(dbType, dbDSN)
+	defer database.CloseDB()
 
 	r := gin.Default()
 	routes.Router(r)
