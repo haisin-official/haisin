@@ -30,7 +30,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	UserIDInverseTable = "users"
 	// UserIDColumn is the table column denoting the user_id relation/edge.
-	UserIDColumn = "user_user_id"
+	UserIDColumn = "user_uuid"
 )
 
 // Columns holds all SQL columns for url fields.
@@ -45,7 +45,7 @@ var Columns = []string{
 // ForeignKeys holds the SQL foreign-keys that are owned by the "urls"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
-	"user_user_id",
+	"user_uuid",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

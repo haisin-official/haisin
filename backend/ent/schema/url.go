@@ -40,6 +40,6 @@ func (Url) Edges() []ent.Edge {
 		edge.From("user_id", User.Type).
 			Unique().
 			Required().
-			Ref("user_id"),
+			Ref("uuid"),
 	}
 }

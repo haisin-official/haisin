@@ -413,10 +413,10 @@ func (uq *URLQuery) loadUserID(ctx context.Context, query *UserQuery, nodes []*U
 	ids := make([]uuid.UUID, 0, len(nodes))
 	nodeids := make(map[uuid.UUID][]*Url)
 	for i := range nodes {
-		if nodes[i].user_user_id == nil {
+		if nodes[i].user_uuid == nil {
 			continue
 		}
-		fk := *nodes[i].user_user_id
+		fk := *nodes[i].user_uuid
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -433,7 +433,7 @@ func (uq *URLQuery) loadUserID(ctx context.Context, query *UserQuery, nodes []*U
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "user_user_id" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "user_uuid" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)

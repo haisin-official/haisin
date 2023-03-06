@@ -366,24 +366,24 @@ func GaContainsFold(v string) predicate.User {
 	return predicate.User(sql.FieldContainsFold(FieldGa, v))
 }
 
-// HasUserID applies the HasEdge predicate on the "user_id" edge.
-func HasUserID() predicate.User {
+// HasUUID applies the HasEdge predicate on the "uuid" edge.
+func HasUUID() predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, UserIDTable, UserIDColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, UUIDTable, UUIDColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasUserIDWith applies the HasEdge predicate on the "user_id" edge with a given conditions (other predicates).
-func HasUserIDWith(preds ...predicate.Url) predicate.User {
+// HasUUIDWith applies the HasEdge predicate on the "uuid" edge with a given conditions (other predicates).
+func HasUUIDWith(preds ...predicate.Url) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(UserIDInverseTable, FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, UserIDTable, UserIDColumn),
+			sqlgraph.To(UUIDInverseTable, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, UUIDTable, UUIDColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {

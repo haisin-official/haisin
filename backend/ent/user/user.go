@@ -21,17 +21,17 @@ const (
 	FieldSlug = "slug"
 	// FieldGa holds the string denoting the ga field in the database.
 	FieldGa = "ga"
-	// EdgeUserID holds the string denoting the user_id edge name in mutations.
-	EdgeUserID = "user_id"
+	// EdgeUUID holds the string denoting the uuid edge name in mutations.
+	EdgeUUID = "uuid"
 	// Table holds the table name of the user in the database.
 	Table = "users"
-	// UserIDTable is the table that holds the user_id relation/edge.
-	UserIDTable = "urls"
-	// UserIDInverseTable is the table name for the Url entity.
+	// UUIDTable is the table that holds the uuid relation/edge.
+	UUIDTable = "urls"
+	// UUIDInverseTable is the table name for the Url entity.
 	// It exists in this package in order to avoid circular dependency with the "url" package.
-	UserIDInverseTable = "urls"
-	// UserIDColumn is the table column denoting the user_id relation/edge.
-	UserIDColumn = "user_user_id"
+	UUIDInverseTable = "urls"
+	// UUIDColumn is the table column denoting the uuid relation/edge.
+	UUIDColumn = "user_uuid"
 )
 
 // Columns holds all SQL columns for user fields.

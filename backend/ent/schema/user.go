@@ -44,7 +44,7 @@ func (User) Mixin() []ent.Mixin {
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("user_id", Url.Type).
+		edge.To("uuid", Url.Type).
 			Annotations(entsql.Annotation{
 				OnDelete: entsql.Cascade,
 			}),
