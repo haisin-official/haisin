@@ -8,6 +8,7 @@ import (
 	"github.com/haisin-official/haisin/config"
 	"github.com/haisin-official/haisin/ent"
 	"github.com/haisin-official/haisin/routes"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -19,6 +20,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed opening connection to postgres: %v", err)
 	}
+	fmt.Println("Successful connect to postgres ✅")
 	defer client.Close()
 
 	r := gin.Default()
