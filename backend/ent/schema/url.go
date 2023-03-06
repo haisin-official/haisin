@@ -1,11 +1,10 @@
 package schema
 
 import (
-	"time"
-
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"entgo.io/ent/schema/mixin"
 	"github.com/google/uuid"
 )
 
@@ -25,10 +24,13 @@ func (Url) Fields() []ent.Field {
 		field.String("url").
 			MaxLen(2083).
 			NotEmpty(),
-		field.Time("created_at").
-			Default(time.Now),
-		field.Time("updated_at").
-			Default(time.Now),
+	}
+}
+
+// Mixin of the Url.
+func (Url) Mixin() []ent.Mixin {
+	return []ent.Mixin{
+		mixin.Time{},
 	}
 }
 
