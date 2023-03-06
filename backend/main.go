@@ -14,8 +14,8 @@ func main() {
 	// Connect to postgresql
 	dbType := config.GetEnv("DB_TYPE")
 	dbDSN := config.GetEnv("DB_DSN")
-	database.InitDB(dbType, dbDSN)
-	defer database.CloseDB()
+	database.InitClient(dbType, dbDSN)
+	defer database.CloseClient()
 
 	r := gin.Default()
 	routes.Router(r)

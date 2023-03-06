@@ -12,7 +12,7 @@ var (
 	err    error
 )
 
-func InitDB(driver string, dsn string) {
+func InitClient(driver string, dsn string) {
 	client, err = ent.Open(driver, dsn)
 
 	if err != nil {
@@ -21,10 +21,10 @@ func InitDB(driver string, dsn string) {
 	fmt.Println("Successful connect to postgres ✅")
 }
 
-func GetDB() *ent.Client {
+func GetClient() *ent.Client {
 	return client
 }
 
-func CloseDB() {
+func CloseClient() {
 	client.Close()
 }
