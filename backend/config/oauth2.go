@@ -48,7 +48,7 @@ func CheckOAuthToken(state string, code string) (*oauth2.Token, int, error) {
 	return token, http.StatusOK, nil
 }
 
-func GetUserInfo(token *oauth2.Token) (*v2.Userinfo, error) {
+func GetUserInfo(token *oauth2.Token) (*v2.Userinfo, int, error) {
 	conf := GetOAuth2Conf()
 	ctx := context.Background()
 
@@ -56,14 +56,14 @@ func GetUserInfo(token *oauth2.Token) (*v2.Userinfo, error) {
 	service, err := v2.NewService(ctx, option.WithHTTPClient(client))
 
 	if err != nil {
-		return nil, err
+		return nil, http.StatusInternalServerError, err
 	}
 
 	userInfo, err := service.Userinfo.Get().Context(ctx).Do()
 
 	if err != nil {
-		return nil, err
+		return nil, http.StatusInternalServerError, err
 	}
 
-	return userInfo, nil
+	return userInfo, http.StatusOK, nil
 }
