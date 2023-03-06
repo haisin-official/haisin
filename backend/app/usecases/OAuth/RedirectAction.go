@@ -8,12 +8,12 @@ import (
 )
 
 func (OAuthUseCases) RedirectAction() (responses.OAuthRedirect, int, error) {
-	url, err := config.GetRedirectUrl()
+	url, code, err := config.GetRedirectUrl()
 
 	if err != nil {
 		return responses.OAuthRedirect{}, http.StatusInternalServerError, err
 	}
 	return responses.OAuthRedirect{
 		RedirectURL: url,
-	}, http.StatusOK, err
+	}, code, err
 }
