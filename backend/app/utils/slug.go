@@ -3,7 +3,7 @@ package utils
 import "math/rand"
 
 func GenSlug() (string, error) {
-	return randomString(32), nil
+	return randomString(12), nil
 }
 
 func randomString(n int) string {
