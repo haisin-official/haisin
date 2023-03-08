@@ -14,46 +14,53 @@ import (
 )
 
 func (OAuthUseCases) CallbackAction(state string, code string) (responses.OAuthCallback, int, error) {
+	// 返り値のデータとHTTPコード
 	res := responses.OAuthCallback{}
 	httpCode := http.StatusOK
 
+	// OAuthログインの検証
 	token, httpCode, err := config.CheckOAuthToken(state, code)
 	if err != nil {
 		return res, httpCode, err
 	}
 
-	// Google OAuth を使用してEmailアドレスを取得
+	// OAuth2.0 を使用してEmailアドレスを取得
 	userInfo, httpCode, err := config.GetUserInfo(token)
 
 	if err != nil {
 		return res, httpCode, err
 	}
 
-	UserEmail := &userInfo.Email
+	userEmail := &userInfo.Email
 
 	// Emailが取得できない場合, ユーザー登録ができないのでエラーを返却する
-	if UserEmail == nil {
-		return res, http.StatusInternalServerError, fmt.Errorf("could not get email address")
+	if userEmail == nil {
+		httpCode = http.StatusInternalServerError
+		err = fmt.Errorf("could not get email address")
+		return res, httpCode, err
 	}
 
-	// ユーザーデータを取得する
+	// Emailが登録されているか確認を行う
 	client := database.GetClient()
 	ctx := context.Background()
-	userData, err := client.User.
+	// userEmailの存在を確認する
+
+	if exist := client.User.
 		Query().
 		Unique(true).
-		Select(user.FieldID, user.FieldGa, user.FieldEmail, user.FieldSlug).
-		Where(user.EmailEQ(*UserEmail)).
-		Only(ctx)
-	// ユーザーが存在しない場合
-	if ent.IsNotFound(err) {
-		res, httpCode, err := register(*UserEmail)
+		Where(user.EmailEQ(*userEmail)).
+		ExistX(ctx); !exist {
+		// ユーザーが存在しない場合は新規登録する
+		httpCode, err := register(*userEmail)
 		if err != nil {
 			return res, httpCode, err
 		}
+	}
+	// ユーザーデータを取得
+	userData, httpCode, err := login(*userEmail)
+	if err != nil {
 		return res, httpCode, err
 	}
-	// ユーザーが存在する場合
 	res.User.Uuid = userData.ID
 	res.User.Slug = userData.Slug
 	res.User.Email = userData.Email
@@ -63,21 +70,20 @@ func (OAuthUseCases) CallbackAction(state string, code string) (responses.OAuthC
 }
 
 // 新規登録を行う
-func register(userEmail string) (responses.OAuthCallback, int, error) {
-	res := responses.OAuthCallback{}
-
+func register(userEmail string) (int, error) {
+	// ここでは登録できたかどうかを確認するので、ユーザーデータは取得しない
 	client := database.GetClient()
 	ctx := context.Background()
 
 	// 新しいUUIDを発行
 	u, err := utils.GenUUID()
 	if err != nil {
-		return res, http.StatusInternalServerError, err
+		return http.StatusInternalServerError, err
 	}
 	// 新しいSLUGを発行
 	s, err := utils.GenSlug()
 	if err != nil {
-		return res, http.StatusInternalServerError, err
+		return http.StatusInternalServerError, err
 	}
 	// UUIDとSLUGとEmailをデータベースに挿入
 	err = client.User.
@@ -87,14 +93,25 @@ func register(userEmail string) (responses.OAuthCallback, int, error) {
 		SetID(u).
 		Exec(ctx)
 	if err != nil {
-		return res, http.StatusInternalServerError, err
+		return http.StatusInternalServerError, err
 	}
+	return http.StatusOK, nil
+}
 
-	// レスポンスデータを構築する
-	res.User.Email = userEmail
-	res.User.Slug = s
-	res.User.Uuid = u
-	res.User.Ga = nil
+func login(userEmail string) (*ent.User, int, error) {
+	client := database.GetClient()
+	ctx := context.Background()
+
+	res, err := client.User.
+		Query().
+		Unique(true).
+		Select(user.FieldID, user.FieldGa, user.FieldEmail, user.FieldSlug).
+		Where(user.EmailEQ(userEmail)).
+		Only(ctx)
+
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
 
 	return res, http.StatusOK, nil
 }
