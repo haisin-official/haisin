@@ -16,7 +16,20 @@ func (OAuthController) Redirect(c *gin.Context) {
 		c.AbortWithStatus(code)
 		c.JSON(code, gin.H{"error": http.StatusText(code)})
 		return
-	} else {
-		c.JSON(code, result)
 	}
+	c.JSON(code, result)
+}
+
+func (OAuthController) Callback(c *gin.Context) {
+	state := c.Query("state")
+	OAuthCode := c.Query("code")
+	result, code, err := usecases.OAuthUseCases{}.CallbackAction(state, OAuthCode)
+
+	if err != nil {
+		c.AbortWithStatus(code)
+		c.JSON(code, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(code, result)
 }
