@@ -12,5 +12,6 @@ func Router(router *gin.Engine) {
 	{
 		controller := OAuthController.OAuthController{}
 		oauth.GET("/redirect", controller.Redirect)
+		oauth.POST("/callback", controller.Callback)
 	}
 }
