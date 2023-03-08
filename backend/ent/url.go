@@ -28,8 +28,8 @@ type Url struct {
 	URL string `json:"url,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UrlQuery when eager-loading is set.
-	Edges   UrlEdges `json:"edges"`
-	user_id *uuid.UUID
+	Edges     UrlEdges `json:"edges"`
+	user_uuid *uuid.UUID
 }
 
 // UrlEdges holds the relations/edges for other nodes in the graph.
@@ -65,7 +65,7 @@ func (*Url) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullTime)
 		case url.FieldID:
 			values[i] = new(uuid.UUID)
-		case url.ForeignKeys[0]: // user_id
+		case url.ForeignKeys[0]: // user_uuid
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type Url", columns[i])
@@ -114,10 +114,10 @@ func (u *Url) assignValues(columns []string, values []any) error {
 			}
 		case url.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
-				return fmt.Errorf("unexpected type %T for field user_id", values[i])
+				return fmt.Errorf("unexpected type %T for field user_uuid", values[i])
 			} else if value.Valid {
-				u.user_id = new(uuid.UUID)
-				*u.user_id = *value.S.(*uuid.UUID)
+				u.user_uuid = new(uuid.UUID)
+				*u.user_uuid = *value.S.(*uuid.UUID)
 			}
 		}
 	}

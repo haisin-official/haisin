@@ -18,7 +18,6 @@ type User struct {
 func (User) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
-			StorageKey("user_id").
 			Unique(),
 		field.String("email").
 			MaxLen(100).
@@ -45,7 +44,7 @@ func (User) Mixin() []ent.Mixin {
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("id", Url.Type).
+		edge.To("uuid", Url.Type).
 			Annotations(entsql.Annotation{
 				OnDelete: entsql.Cascade,
 			}),

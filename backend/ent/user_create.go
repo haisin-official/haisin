@@ -82,19 +82,19 @@ func (uc *UserCreate) SetID(u uuid.UUID) *UserCreate {
 	return uc
 }
 
-// AddIDIDs adds the "id" edge to the Url entity by IDs.
-func (uc *UserCreate) AddIDIDs(ids ...uuid.UUID) *UserCreate {
-	uc.mutation.AddIDIDs(ids...)
+// AddUUIDIDs adds the "uuid" edge to the Url entity by IDs.
+func (uc *UserCreate) AddUUIDIDs(ids ...uuid.UUID) *UserCreate {
+	uc.mutation.AddUUIDIDs(ids...)
 	return uc
 }
 
-// AddID adds the "id" edges to the Url entity.
-func (uc *UserCreate) AddID(u ...*Url) *UserCreate {
+// AddUUID adds the "uuid" edges to the Url entity.
+func (uc *UserCreate) AddUUID(u ...*Url) *UserCreate {
 	ids := make([]uuid.UUID, len(u))
 	for i := range u {
 		ids[i] = u[i].ID
 	}
-	return uc.AddIDIDs(ids...)
+	return uc.AddUUIDIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -226,12 +226,12 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldGa, field.TypeString, value)
 		_node.Ga = &value
 	}
-	if nodes := uc.mutation.IDIDs(); len(nodes) > 0 {
+	if nodes := uc.mutation.UUIDIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
-			Table:   user.IDTable,
-			Columns: []string{user.IDColumn},
+			Table:   user.UUIDTable,
+			Columns: []string{user.UUIDColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{

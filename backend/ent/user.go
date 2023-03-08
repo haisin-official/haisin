@@ -34,20 +34,20 @@ type User struct {
 
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
-	// ID holds the value of the id edge.
-	ID []*Url `json:"id,omitempty"`
+	// UUID holds the value of the uuid edge.
+	UUID []*Url `json:"uuid,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
 }
 
-// IDOrErr returns the ID value or an error if the edge
+// UUIDOrErr returns the UUID value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) IDOrErr() ([]*Url, error) {
+func (e UserEdges) UUIDOrErr() ([]*Url, error) {
 	if e.loadedTypes[0] {
-		return e.ID, nil
+		return e.UUID, nil
 	}
-	return nil, &NotLoadedError{edge: "id"}
+	return nil, &NotLoadedError{edge: "uuid"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -118,9 +118,9 @@ func (u *User) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// QueryID queries the "id" edge of the User entity.
-func (u *User) QueryID() *URLQuery {
-	return NewUserClient(u.config).QueryID(u)
+// QueryUUID queries the "uuid" edge of the User entity.
+func (u *User) QueryUUID() *URLQuery {
+	return NewUserClient(u.config).QueryUUID(u)
 }
 
 // Update returns a builder for updating this User.

@@ -17,7 +17,6 @@ type Url struct {
 func (Url) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
-			StorageKey("uuid").
 			Unique(),
 		field.Enum("service").
 			Values("twitter", "youtube", "fanbox"),
@@ -41,6 +40,6 @@ func (Url) Edges() []ent.Edge {
 		edge.From("user_id", User.Type).
 			Unique().
 			Required().
-			Ref("id"),
+			Ref("uuid"),
 	}
 }

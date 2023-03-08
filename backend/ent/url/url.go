@@ -11,7 +11,7 @@ const (
 	// Label holds the string label denoting the url type in the database.
 	Label = "url"
 	// FieldID holds the string denoting the id field in the database.
-	FieldID = "uuid"
+	FieldID = "id"
 	// FieldCreateTime holds the string denoting the create_time field in the database.
 	FieldCreateTime = "create_time"
 	// FieldUpdateTime holds the string denoting the update_time field in the database.
@@ -22,8 +22,6 @@ const (
 	FieldURL = "url"
 	// EdgeUserID holds the string denoting the user_id edge name in mutations.
 	EdgeUserID = "user_id"
-	// UserFieldID holds the string denoting the ID field of the User.
-	UserFieldID = "user_id"
 	// Table holds the table name of the url in the database.
 	Table = "urls"
 	// UserIDTable is the table that holds the user_id relation/edge.
@@ -32,7 +30,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "user" package.
 	UserIDInverseTable = "users"
 	// UserIDColumn is the table column denoting the user_id relation/edge.
-	UserIDColumn = "user_id"
+	UserIDColumn = "user_uuid"
 )
 
 // Columns holds all SQL columns for url fields.
@@ -47,7 +45,7 @@ var Columns = []string{
 // ForeignKeys holds the SQL foreign-keys that are owned by the "urls"
 // table and are not defined as standalone fields in the schema.
 var ForeignKeys = []string{
-	"user_id",
+	"user_uuid",
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).

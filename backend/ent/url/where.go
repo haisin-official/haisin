@@ -252,7 +252,7 @@ func HasUserIDWith(preds ...predicate.User) predicate.Url {
 	return predicate.Url(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.To(UserIDInverseTable, UserFieldID),
+			sqlgraph.To(UserIDInverseTable, FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, UserIDTable, UserIDColumn),
 		)
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {

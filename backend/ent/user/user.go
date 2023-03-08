@@ -10,7 +10,7 @@ const (
 	// Label holds the string label denoting the user type in the database.
 	Label = "user"
 	// FieldID holds the string denoting the id field in the database.
-	FieldID = "user_id"
+	FieldID = "id"
 	// FieldCreateTime holds the string denoting the create_time field in the database.
 	FieldCreateTime = "create_time"
 	// FieldUpdateTime holds the string denoting the update_time field in the database.
@@ -21,19 +21,17 @@ const (
 	FieldSlug = "slug"
 	// FieldGa holds the string denoting the ga field in the database.
 	FieldGa = "ga"
-	// EdgeID holds the string denoting the id edge name in mutations.
-	EdgeID = "id"
-	// UrlFieldID holds the string denoting the ID field of the Url.
-	UrlFieldID = "uuid"
+	// EdgeUUID holds the string denoting the uuid edge name in mutations.
+	EdgeUUID = "uuid"
 	// Table holds the table name of the user in the database.
 	Table = "users"
-	// IDTable is the table that holds the id relation/edge.
-	IDTable = "urls"
-	// IDInverseTable is the table name for the Url entity.
+	// UUIDTable is the table that holds the uuid relation/edge.
+	UUIDTable = "urls"
+	// UUIDInverseTable is the table name for the Url entity.
 	// It exists in this package in order to avoid circular dependency with the "url" package.
-	IDInverseTable = "urls"
-	// IDColumn is the table column denoting the id relation/edge.
-	IDColumn = "user_id"
+	UUIDInverseTable = "urls"
+	// UUIDColumn is the table column denoting the uuid relation/edge.
+	UUIDColumn = "user_uuid"
 )
 
 // Columns holds all SQL columns for user fields.
