@@ -22,6 +22,7 @@ func NewSessions(client *redis.Client) {
 
 	// Manager Sessings
 	sessionManager.Lifetime = 24 * time.Hour
+	sessionManager.Cookie.Path = "/"
 	sessionManager.Cookie.Name = "haisin_session"
 	sessionManager.Cookie.HttpOnly = true
 	sessionManager.Cookie.Persist = true
