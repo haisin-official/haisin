@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	usecases "github.com/haisin-official/haisin/app/usecases/OAuth"
 	"github.com/haisin-official/haisin/config"
+	"github.com/haisin-official/haisin/config/session"
 )
 
 type OAuthController struct{}
@@ -33,7 +34,12 @@ func (OAuthController) Callback(c *gin.Context) {
 	}
 
 	// sessionにユーザーIDを保管
-	config.SetSessionValue(c, "session_id", utils.)
+	ckey := config.GetEnv("SESSION_SECERT_ENCRYPTION_KEY")
+	data := new(session.Store)
+	data.SessionId = config.GetEnv("SESSION_KEY")
+	data.UserId = result.User.Uuid.String()
+
+	session.NewSession(c, ckey, *data)
 
 	c.JSON(code, result)
 }
