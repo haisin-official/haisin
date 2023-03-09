@@ -13,6 +13,7 @@ services:
       - .env
     depends_on:
       - db
+      - redis
     volumes:
       - type: bind
         source: .
@@ -37,6 +38,15 @@ services:
       - type: bind
         source: ./docker/${GO_ENV}/db/initdb
         target: /docker-entrypoint-initdb.d
+    networks:
+      - haisin_network
+  redis:
+    container_name: haisin_redis
+    image: redis:latest
+    ports:
+      - 6379:6379
+    volumes:
+      - ./docker/${GO_ENV}/redis/data:/data
     networks:
       - haisin_network
 
