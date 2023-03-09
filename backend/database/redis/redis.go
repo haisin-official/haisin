@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	client *redis.Client
+	r *redis.Client
 )
 
 func InitClient(url string) {
@@ -16,14 +16,14 @@ func InitClient(url string) {
 	if err != nil {
 		log.Panicf("Fatal Error of redis 🚫\n %v", err)
 	}
-	client = redis.NewClient(opt)
+	r = redis.NewClient(opt)
 
 	fmt.Println("Success connection to redis ✅")
 }
 func GetClient() *redis.Client {
-	return client
+	return r
 }
 
 func CloseClient() {
-	client.Close()
+	r.Close()
 }
