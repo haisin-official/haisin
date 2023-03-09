@@ -3,11 +3,15 @@ package utils
 import (
 	"crypto/rand"
 	"encoding/base64"
+	"io"
+	"log"
 )
 
 func GenRandToken() string {
 	b := make([]byte, 32)
-	rand.Read(b)
+	if _, err := io.ReadFull(rand.Reader, b); err != nil {
+		log.Panicf("Error with create new token 🚫\n %v", err)
+	}
 
 	return base64.StdEncoding.EncodeToString(b)
 }
