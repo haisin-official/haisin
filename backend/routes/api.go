@@ -3,6 +3,7 @@ package routes
 import (
 	"github.com/gin-gonic/gin"
 	OAuthController "github.com/haisin-official/haisin/app/http/controllers/OAuth"
+	UserController "github.com/haisin-official/haisin/app/http/controllers/User"
 )
 
 func Router(router *gin.Engine) {
@@ -13,5 +14,11 @@ func Router(router *gin.Engine) {
 		controller := OAuthController.OAuthController{}
 		oauth.GET("/redirect", controller.Redirect)
 		oauth.POST("/callback", controller.Callback)
+	}
+
+	user := v1.Group("/user")
+	{
+		controller := UserController.UserController{}
+		user.GET("/me", controller.GetUserMe)
 	}
 }
