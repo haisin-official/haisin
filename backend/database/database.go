@@ -16,9 +16,9 @@ func InitClient(driver string, dsn string) {
 	client, err = ent.Open(driver, dsn)
 
 	if err != nil {
-		log.Fatalf("failed opening connection to postgres: %v", err)
+		log.Panicf("Fatal Error of postgres 🚫\n %v", err)
 	}
-	fmt.Println("Successful connect to postgres ✅")
+	fmt.Println("Success connection to postgres ✅")
 }
 
 func GetClient() *ent.Client {
