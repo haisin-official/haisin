@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -61,23 +62,35 @@ func NewSession(c *gin.Context, cKey string, v Store) {
 	c.SetCookie(cKey, token, manager.MaxAge, manager.Path, manager.Domain, manager.Secure, manager.HttpOnly)
 }
 
-func GetSession(c *gin.Context, cKey string) (*Store, error) {
+func GetSession(c *gin.Context, cKey string) (*Store, int, error) {
 	token, _ := c.Cookie(cKey)
 	vJSON, err := r.Get(c, token).Bytes()
 	if err == goRedis.Nil {
 		fmt.Println("No Registered Token ⚠")
-		return nil, fmt.Errorf("no registered token %v", err)
+		return nil, http.StatusUnauthorized, fmt.Errorf("no registered token %v", err)
 	}
 	if err != nil {
 		fmt.Println("Error has occured in getting Session 🚫")
-		return nil, fmt.Errorf("error has occured in getting session %v", err)
+		return nil, http.StatusInternalServerError, fmt.Errorf("error has occured in getting session %v", err)
 	}
 
 	// Convert value to store struct
 	v := new(Store)
 	if err := json.Unmarshal(vJSON, v); err != nil {
 		fmt.Println("Error has occured in Unmarshal JSON 🚫")
-		return nil, fmt.Errorf("error has occured in unmarshal json %v", err)
+		return nil, http.StatusInternalServerError, fmt.Errorf("error has occured in unmarshal json %v", err)
 	}
-	return v, nil
+	return v, http.StatusOK, nil
+}
+
+func DeleteSession(c *gin.Context, cKey string) error {
+	token, _ := c.Cookie(cKey)
+	r.Del(c, token)
+	c.SetCookie(cKey, "", -1, manager.Path, manager.Domain, manager.Secure, manager.HttpOnly)
+	return nil
+}
+
+func GetSessionKey() string {
+	cKey := config.GetEnv("SESSION_SECRET_ENCRYPTION_KEY")
+	return cKey
 }
