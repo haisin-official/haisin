@@ -22,11 +22,14 @@ func (UserUseCases) UserGetAction(req requests.UserGetRequest) (responses.UserGe
 	}
 
 	// 返り値のデータを構築
-	res := responses.UserGetResponse{}
-	res.User.Uuid = user.ID
-	res.User.Email = user.Email
-	res.User.Slug = user.Slug
-	res.User.Ga = user.Ga
+	res := responses.UserGetResponse{
+		User: responses.UserGetUser{
+			Uuid:  user.ID,
+			Email: user.Email,
+			Slug:  user.Slug,
+			Ga:    user.Ga,
+		},
+	}
 
 	return res, http.StatusOK, nil
 

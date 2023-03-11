@@ -59,11 +59,14 @@ func (OAuthUseCases) CallbackAction(req requests.CallbackRequest) (responses.OAu
 	}
 
 	// 返り値のデータを構築
-	res := responses.OAuthCallback{}
-	res.User.Uuid = userData.ID
-	res.User.Slug = userData.Slug
-	res.User.Email = userData.Email
-	res.User.Ga = userData.Ga
+	res := responses.OAuthCallback{
+		User: responses.OAuthCallbackUser{
+			Uuid:  userData.ID,
+			Slug:  userData.Slug,
+			Email: userData.Email,
+			Ga:    userData.Ga,
+		},
+	}
 
 	return res, http.StatusOK, nil
 }
