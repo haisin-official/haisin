@@ -13,7 +13,10 @@ func (OAuthUseCases) RedirectAction() (responses.OAuthRedirect, int, error) {
 	if err != nil {
 		return responses.OAuthRedirect{}, http.StatusInternalServerError, err
 	}
-	return responses.OAuthRedirect{
+
+	res := responses.OAuthRedirect{
 		RedirectURL: url,
-	}, code, err
+	}
+
+	return res, code, err
 }

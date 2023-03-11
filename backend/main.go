@@ -17,7 +17,10 @@ func main() {
 	database.InitClient(dbType, dbDSN)
 	defer database.CloseClient()
 
+	// Start Gin Framework
 	r := gin.Default()
+
+	// Add routes for Gin Framework
 	routes.Router(r)
 
 	port := config.GetEnv("HTTP_PORT")
