@@ -11,9 +11,4 @@ RUN mkdir -p /go/app
 
 WORKDIR /go/app
 
-# COPY go.mod ./
-# COPY go.sum ./
-
-COPY . .
-
 CMD ["air", "main.go"]
