@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	requests "github.com/haisin-official/haisin/app/http/requests/OAuth"
 	usecases "github.com/haisin-official/haisin/app/usecases/OAuth"
+	"github.com/haisin-official/haisin/app/utils"
 	"github.com/haisin-official/haisin/config"
 	"github.com/haisin-official/haisin/config/session"
 )
@@ -37,16 +38,16 @@ func (OAuthController) Callback(c *gin.Context) {
 	}
 
 	// 一度セッションを解除する
-	cKey := config.GetEnv("SESSION_SECRET_ENCRYPTION_KEY")
+	cKey := config.GetEnv("SESSION_KEY")
 	session.DeleteSession(c, cKey)
 
 	// sessionにユーザーIDを保管
-	ckey := config.GetEnv("SESSION_SECERT_ENCRYPTION_KEY")
-	data := new(session.Store)
-	data.SessionId = config.GetEnv("SESSION_KEY")
-	data.UserId = result.User.Uuid.String()
-
-	session.NewSession(c, ckey, *data)
+	cKey = config.GetEnv("SESSION_KEY")
+	data := session.Store{
+		SessionId: utils.GenRandToken(),
+		UserId:    result.User.Uuid.String(),
+	}
+	session.NewSession(c, cKey, data)
 
 	c.JSON(code, result)
 }

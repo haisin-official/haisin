@@ -14,17 +14,18 @@ import (
 
 type UserController struct{}
 
+// ログイン中のユーザーデータを取得
 func (UserController) GetUserMe(c *gin.Context) {
 
-	ckey := config.GetEnv("SESSION_KEY")
-	data, httpCode, err := session.GetSession(c, ckey)
+	cKey := config.GetEnv("SESSION_KEY")
+	data, httpCode, err := session.GetSession(c, cKey)
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatus(httpCode)
 		c.JSON(httpCode, gin.H{"error": http.StatusText(httpCode)})
 		return
 	}
-	// セッションから取得したユーザーIDをUUIDにアサーションする
+	// セッションから取得したユーザーIDをUUIDに変換する
 	u, err := uuid.Parse(data.UserId)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
@@ -50,9 +51,10 @@ func (UserController) GetUserMe(c *gin.Context) {
 	c.JSON(code, result)
 }
 
+// ログアウトする
 func (UserController) Logout(c *gin.Context) {
-	ckey := config.GetEnv("SESSION_KEY")
-	if err := session.DeleteSession(c, ckey); err != nil {
+	cKey := config.GetEnv("SESSION_KEY")
+	if err := session.DeleteSession(c, cKey); err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": http.StatusText(http.StatusInternalServerError)})
 		return
