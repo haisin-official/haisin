@@ -12,7 +12,7 @@ import (
 func Authenticate() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// セッションが存在するか確認
-		cKey := config.GetEnv("SESSION_SECRET_ENCRYPTION_KEY")
+		cKey := config.GetEnv("SESSION_KEY")
 		data, httpCode, err := session.GetSession(c, cKey)
 		if err != nil {
 			fmt.Println(err)
