@@ -50,7 +50,7 @@ func init() {
 }
 
 func NewSession(c *gin.Context, cKey string, v Store) {
-	// Generate New Key
+	// Generate New Token
 	token := utils.GenRandToken()
 
 	vj, _ := json.Marshal(v)
@@ -62,6 +62,7 @@ func NewSession(c *gin.Context, cKey string, v Store) {
 	c.SetCookie(cKey, token, manager.MaxAge, manager.Path, manager.Domain, manager.Secure, manager.HttpOnly)
 }
 
+// セッションの値を取得
 func GetSession(c *gin.Context, cKey string) (*Store, int, error) {
 	token, _ := c.Cookie(cKey)
 	vJSON, err := r.Get(c, token).Bytes()
@@ -83,14 +84,10 @@ func GetSession(c *gin.Context, cKey string) (*Store, int, error) {
 	return v, http.StatusOK, nil
 }
 
+// セッションを削除
 func DeleteSession(c *gin.Context, cKey string) error {
 	token, _ := c.Cookie(cKey)
 	r.Del(c, token)
 	c.SetCookie(cKey, "", -1, manager.Path, manager.Domain, manager.Secure, manager.HttpOnly)
 	return nil
-}
-
-func GetSessionKey() string {
-	cKey := config.GetEnv("SESSION_SECRET_ENCRYPTION_KEY")
-	return cKey
 }
