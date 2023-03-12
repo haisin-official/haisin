@@ -31,6 +31,7 @@ func changeSlug(userId uuid.UUID, slug string) (*ent.User, int, error) {
 	ctx := context.Background()
 
 	// Transactionを発行して実行させるように変更
+	// unique conflictの検証は後でやる
 	user, err := client.User.
 		UpdateOneID(userId).
 		SetSlug(slug).
