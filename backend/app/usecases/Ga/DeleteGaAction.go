@@ -28,7 +28,7 @@ func deleteGa(userId uuid.UUID) (int, error) {
 
 	_, err := client.User.
 		UpdateOneID(userId).
-		SetNillableGa(nil).
+		ClearGa().
 		Save(ctx)
 	if err != nil {
 		return http.StatusInternalServerError, err
