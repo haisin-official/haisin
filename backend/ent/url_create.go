@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -20,6 +22,7 @@ type URLCreate struct {
 	config
 	mutation *URLMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetCreateTime sets the "create_time" field.
@@ -182,6 +185,7 @@ func (uc *URLCreate) createSpec() (*Url, *sqlgraph.CreateSpec) {
 		_node = &Url{config: uc.config}
 		_spec = sqlgraph.NewCreateSpec(url.Table, sqlgraph.NewFieldSpec(url.FieldID, field.TypeUUID))
 	)
+	_spec.OnConflict = uc.conflict
 	if id, ok := uc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -225,10 +229,227 @@ func (uc *URLCreate) createSpec() (*Url, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Url.Create().
+//		SetCreateTime(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.UrlUpsert) {
+//			SetCreateTime(v+v).
+//		}).
+//		Exec(ctx)
+func (uc *URLCreate) OnConflict(opts ...sql.ConflictOption) *UrlUpsertOne {
+	uc.conflict = opts
+	return &UrlUpsertOne{
+		create: uc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Url.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (uc *URLCreate) OnConflictColumns(columns ...string) *UrlUpsertOne {
+	uc.conflict = append(uc.conflict, sql.ConflictColumns(columns...))
+	return &UrlUpsertOne{
+		create: uc,
+	}
+}
+
+type (
+	// UrlUpsertOne is the builder for "upsert"-ing
+	//  one Url node.
+	UrlUpsertOne struct {
+		create *URLCreate
+	}
+
+	// UrlUpsert is the "OnConflict" setter.
+	UrlUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUpdateTime sets the "update_time" field.
+func (u *UrlUpsert) SetUpdateTime(v time.Time) *UrlUpsert {
+	u.Set(url.FieldUpdateTime, v)
+	return u
+}
+
+// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
+func (u *UrlUpsert) UpdateUpdateTime() *UrlUpsert {
+	u.SetExcluded(url.FieldUpdateTime)
+	return u
+}
+
+// SetService sets the "service" field.
+func (u *UrlUpsert) SetService(v url.Service) *UrlUpsert {
+	u.Set(url.FieldService, v)
+	return u
+}
+
+// UpdateService sets the "service" field to the value that was provided on create.
+func (u *UrlUpsert) UpdateService() *UrlUpsert {
+	u.SetExcluded(url.FieldService)
+	return u
+}
+
+// SetURL sets the "url" field.
+func (u *UrlUpsert) SetURL(v string) *UrlUpsert {
+	u.Set(url.FieldURL, v)
+	return u
+}
+
+// UpdateURL sets the "url" field to the value that was provided on create.
+func (u *UrlUpsert) UpdateURL() *UrlUpsert {
+	u.SetExcluded(url.FieldURL)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.Url.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(url.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *UrlUpsertOne) UpdateNewValues() *UrlUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(url.FieldID)
+		}
+		if _, exists := u.create.mutation.CreateTime(); exists {
+			s.SetIgnore(url.FieldCreateTime)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Url.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *UrlUpsertOne) Ignore() *UrlUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *UrlUpsertOne) DoNothing() *UrlUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the URLCreate.OnConflict
+// documentation for more info.
+func (u *UrlUpsertOne) Update(set func(*UrlUpsert)) *UrlUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&UrlUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (u *UrlUpsertOne) SetUpdateTime(v time.Time) *UrlUpsertOne {
+	return u.Update(func(s *UrlUpsert) {
+		s.SetUpdateTime(v)
+	})
+}
+
+// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
+func (u *UrlUpsertOne) UpdateUpdateTime() *UrlUpsertOne {
+	return u.Update(func(s *UrlUpsert) {
+		s.UpdateUpdateTime()
+	})
+}
+
+// SetService sets the "service" field.
+func (u *UrlUpsertOne) SetService(v url.Service) *UrlUpsertOne {
+	return u.Update(func(s *UrlUpsert) {
+		s.SetService(v)
+	})
+}
+
+// UpdateService sets the "service" field to the value that was provided on create.
+func (u *UrlUpsertOne) UpdateService() *UrlUpsertOne {
+	return u.Update(func(s *UrlUpsert) {
+		s.UpdateService()
+	})
+}
+
+// SetURL sets the "url" field.
+func (u *UrlUpsertOne) SetURL(v string) *UrlUpsertOne {
+	return u.Update(func(s *UrlUpsert) {
+		s.SetURL(v)
+	})
+}
+
+// UpdateURL sets the "url" field to the value that was provided on create.
+func (u *UrlUpsertOne) UpdateURL() *UrlUpsertOne {
+	return u.Update(func(s *UrlUpsert) {
+		s.UpdateURL()
+	})
+}
+
+// Exec executes the query.
+func (u *UrlUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for URLCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *UrlUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *UrlUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: UrlUpsertOne.ID is not supported by MySQL driver. Use UrlUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *UrlUpsertOne) IDX(ctx context.Context) uuid.UUID {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // URLCreateBulk is the builder for creating many Url entities in bulk.
 type URLCreateBulk struct {
 	config
 	builders []*URLCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the Url entities in the database.
@@ -255,6 +476,7 @@ func (ucb *URLCreateBulk) Save(ctx context.Context) ([]*Url, error) {
 					_, err = mutators[i+1].Mutate(root, ucb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = ucb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, ucb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -301,6 +523,162 @@ func (ucb *URLCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (ucb *URLCreateBulk) ExecX(ctx context.Context) {
 	if err := ucb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.Url.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.UrlUpsert) {
+//			SetCreateTime(v+v).
+//		}).
+//		Exec(ctx)
+func (ucb *URLCreateBulk) OnConflict(opts ...sql.ConflictOption) *UrlUpsertBulk {
+	ucb.conflict = opts
+	return &UrlUpsertBulk{
+		create: ucb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.Url.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (ucb *URLCreateBulk) OnConflictColumns(columns ...string) *UrlUpsertBulk {
+	ucb.conflict = append(ucb.conflict, sql.ConflictColumns(columns...))
+	return &UrlUpsertBulk{
+		create: ucb,
+	}
+}
+
+// UrlUpsertBulk is the builder for "upsert"-ing
+// a bulk of Url nodes.
+type UrlUpsertBulk struct {
+	create *URLCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.Url.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(url.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *UrlUpsertBulk) UpdateNewValues() *UrlUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(url.FieldID)
+			}
+			if _, exists := b.mutation.CreateTime(); exists {
+				s.SetIgnore(url.FieldCreateTime)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.Url.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *UrlUpsertBulk) Ignore() *UrlUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *UrlUpsertBulk) DoNothing() *UrlUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the URLCreateBulk.OnConflict
+// documentation for more info.
+func (u *UrlUpsertBulk) Update(set func(*UrlUpsert)) *UrlUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&UrlUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUpdateTime sets the "update_time" field.
+func (u *UrlUpsertBulk) SetUpdateTime(v time.Time) *UrlUpsertBulk {
+	return u.Update(func(s *UrlUpsert) {
+		s.SetUpdateTime(v)
+	})
+}
+
+// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
+func (u *UrlUpsertBulk) UpdateUpdateTime() *UrlUpsertBulk {
+	return u.Update(func(s *UrlUpsert) {
+		s.UpdateUpdateTime()
+	})
+}
+
+// SetService sets the "service" field.
+func (u *UrlUpsertBulk) SetService(v url.Service) *UrlUpsertBulk {
+	return u.Update(func(s *UrlUpsert) {
+		s.SetService(v)
+	})
+}
+
+// UpdateService sets the "service" field to the value that was provided on create.
+func (u *UrlUpsertBulk) UpdateService() *UrlUpsertBulk {
+	return u.Update(func(s *UrlUpsert) {
+		s.UpdateService()
+	})
+}
+
+// SetURL sets the "url" field.
+func (u *UrlUpsertBulk) SetURL(v string) *UrlUpsertBulk {
+	return u.Update(func(s *UrlUpsert) {
+		s.SetURL(v)
+	})
+}
+
+// UpdateURL sets the "url" field to the value that was provided on create.
+func (u *UrlUpsertBulk) UpdateURL() *UrlUpsertBulk {
+	return u.Update(func(s *UrlUpsert) {
+		s.UpdateURL()
+	})
+}
+
+// Exec executes the query.
+func (u *UrlUpsertBulk) Exec(ctx context.Context) error {
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the URLCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for URLCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *UrlUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
