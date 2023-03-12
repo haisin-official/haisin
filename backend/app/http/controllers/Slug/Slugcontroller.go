@@ -65,14 +65,20 @@ func (SlugController) PostSlug(c *gin.Context) {
 		return
 	}
 	// リクエストからSLUGが存在するか確認する
+	reqBody := new(requests.SlugPostRequestBody)
+	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": http.StatusText(http.StatusBadRequest)})
+		return
+	}
 
-	req := requests.SlugGetRequest{
+	req := requests.SlugPostRequest{
 		UserID: u,
+		Slug:   reqBody.Slug,
 	}
 
 	fmt.Println(data.SessionId, data.UserId)
 
-	result, code, err := usecases.SlugUseCases{}.SlugGetAction(req)
+	result, code, err := usecases.SlugUseCases{}.SlugPostAction(req)
 
 	if err != nil {
 		c.AbortWithStatus(code)
