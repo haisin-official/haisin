@@ -37,7 +37,7 @@ func (SlugController) GetSlug(c *gin.Context) {
 
 	fmt.Println(data.SessionId, data.UserId)
 
-	result, code, err := usecases.SlugUseCases{}.SlugGetAction(req)
+	result, code, err := usecases.SlugUseCases{}.GetSlugAction(req)
 
 	if err != nil {
 		c.AbortWithStatus(code)
@@ -78,7 +78,7 @@ func (SlugController) PostSlug(c *gin.Context) {
 
 	fmt.Println(data.SessionId, data.UserId)
 
-	result, code, err := usecases.SlugUseCases{}.SlugPostAction(req)
+	result, code, err := usecases.SlugUseCases{}.PostSlugAction(req)
 
 	if err != nil {
 		c.AbortWithStatus(code)
