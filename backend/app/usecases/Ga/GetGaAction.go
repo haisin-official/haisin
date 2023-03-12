@@ -21,7 +21,7 @@ func (GaUseCases) GetGaAction(req requests.GaGetRequest) (responses.GaGetRespons
 	}
 
 	res := responses.GaGetResponse{
-		Ga: *user.Ga,
+		Ga: user.Ga,
 	}
 	return res, http.StatusOK, nil
 }
