@@ -1,4 +1,6 @@
 #!/bin/sh
+# Generate Ent files before gen migration files
+# go run -mod=mod entgo.io/ent/cmd/ent generate --feature sql/upsert ./ent/schema
 
 # Generate migration file
 go generate ./ent
