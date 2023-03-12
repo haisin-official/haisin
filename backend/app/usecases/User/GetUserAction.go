@@ -12,7 +12,7 @@ import (
 	"github.com/haisin-official/haisin/ent/user"
 )
 
-func (UserUseCases) UserGetAction(req requests.UserGetRequest) (responses.UserGetResponse, int, error) {
+func (UserUseCases) GetUserAction(req requests.UserGetRequest) (responses.UserGetResponse, int, error) {
 	// ユーザーIDを取得
 	userId := req.UserID
 

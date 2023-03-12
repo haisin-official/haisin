@@ -40,7 +40,7 @@ func (UserController) GetUserMe(c *gin.Context) {
 	// dataからUserIDを取得
 	fmt.Println(data.SessionId, data.UserId)
 
-	result, code, err := usecases.UserUseCases{}.UserGetAction(req)
+	result, code, err := usecases.UserUseCases{}.GetUserAction(req)
 
 	if err != nil {
 		c.AbortWithStatus(code)
