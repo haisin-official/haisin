@@ -14,3 +14,7 @@ type GaPostRequest struct {
 type GaPostRequestBody struct {
 	Ga string `json:"ga" binding:"required"`
 }
+
+type GaDeleteRequest struct {
+	UserID uuid.UUID
+}

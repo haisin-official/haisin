@@ -7,3 +7,5 @@ type GaGetResponse struct {
 type GaPostReponse struct {
 	Ga string `json:"ga" binding:"required"`
 }
+
+type GaDeleteResponse struct{}
