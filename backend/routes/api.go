@@ -2,9 +2,11 @@ package routes
 
 import (
 	"github.com/gin-gonic/gin"
+	GaController "github.com/haisin-official/haisin/app/http/controllers/Ga"
 	OAuthController "github.com/haisin-official/haisin/app/http/controllers/OAuth"
 	SlugController "github.com/haisin-official/haisin/app/http/controllers/Slug"
 	UserController "github.com/haisin-official/haisin/app/http/controllers/User"
+
 	"github.com/haisin-official/haisin/app/http/middleware"
 )
 
@@ -33,5 +35,14 @@ func Router(router *gin.Engine) {
 		controller := SlugController.SlugController{}
 		slug.GET("/", controller.GetSlug)
 		slug.POST("/", controller.PostSlug)
+	}
+
+	ga := v1.Group("/ga")
+	ga.Use(middleware.Authenticate())
+	{
+		controller := GaController.GaController{}
+		ga.GET("/", controller.GetGa)
+		ga.POST("/", controller.PostGa)
+		ga.DELETE("/", controller.DeleteGa)
 	}
 }
