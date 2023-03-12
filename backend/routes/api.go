@@ -32,5 +32,6 @@ func Router(router *gin.Engine) {
 	{
 		controller := SlugController.SlugController{}
 		slug.GET("/", controller.GetSlug)
+		slug.POST("/", controller.PostSlug)
 	}
 }
