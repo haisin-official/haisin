@@ -15,7 +15,7 @@ import (
 func (GaUseCases) GetGaAction(req requests.GaGetRequest) (responses.GaGetResponse, int, error) {
 	userId := req.UserID
 
-	user, httpCode, err := getSlug(userId)
+	user, httpCode, err := getGa(userId)
 	if err != nil {
 		return responses.GaGetResponse{}, httpCode, err
 	}
