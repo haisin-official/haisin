@@ -3,18 +3,19 @@ package usecases
 import (
 	"net/http"
 
-	responses "github.com/haisin-official/haisin/app/http/responses/OAuth"
+	requests "github.com/haisin-official/haisin/app/requests/OAuth"
+	responses "github.com/haisin-official/haisin/app/responses/OAuth"
 	"github.com/haisin-official/haisin/config"
 )
 
-func (OAuthUseCases) RedirectAction() (responses.OAuthRedirect, int, error) {
+func (OAuthUseCase) RedirectGetAction(req requests.RedirectGetRequest) (responses.RedirectGetResponse, int, error) {
 	url, code, err := config.GetRedirectUrl()
 
 	if err != nil {
-		return responses.OAuthRedirect{}, http.StatusInternalServerError, err
+		return responses.RedirectGetResponse{}, http.StatusInternalServerError, err
 	}
 
-	res := responses.OAuthRedirect{
+	res := responses.RedirectGetResponse{
 		RedirectURL: url,
 	}
 
