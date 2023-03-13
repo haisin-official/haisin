@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	requests "github.com/haisin-official/haisin/app/http/requests/OAuth"
+	requests "github.com/haisin-official/haisin/app/requests/OAuth"
 	usecases "github.com/haisin-official/haisin/app/usecases/OAuth"
 	"github.com/haisin-official/haisin/app/utils"
 	"github.com/haisin-official/haisin/config"
@@ -13,8 +13,9 @@ import (
 
 type OAuthController struct{}
 
-func (OAuthController) Redirect(c *gin.Context) {
-	result, code, err := usecases.OAuthUseCases{}.RedirectAction()
+func (OAuthController) RedirectGet(c *gin.Context) {
+	req := requests.RedirectGetRequest{}
+	result, code, err := usecases.OAuthUseCase{}.RedirectGetAction(req)
 
 	if err != nil {
 		c.AbortWithStatus(code)
@@ -24,12 +25,12 @@ func (OAuthController) Redirect(c *gin.Context) {
 	c.JSON(code, result)
 }
 
-func (OAuthController) Callback(c *gin.Context) {
-	req := requests.CallbackRequest{
+func (OAuthController) CallbackPost(c *gin.Context) {
+	req := requests.CallbackPostRequest{
 		State: c.Query("state"),
 		Code:  c.Query("code"),
 	}
-	result, code, err := usecases.OAuthUseCases{}.CallbackAction(req)
+	result, code, err := usecases.OAuthUseCase{}.CallbackPostAction(req)
 
 	if err != nil {
 		c.AbortWithStatus(code)

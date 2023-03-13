@@ -5,14 +5,14 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	requests "github.com/haisin-official/haisin/app/http/requests/User"
-	responses "github.com/haisin-official/haisin/app/http/responses/User"
+	requests "github.com/haisin-official/haisin/app/requests/User"
+	responses "github.com/haisin-official/haisin/app/responses/User"
 	"github.com/haisin-official/haisin/database"
 	"github.com/haisin-official/haisin/ent"
 	"github.com/haisin-official/haisin/ent/user"
 )
 
-func (UserUseCases) GetUserAction(req requests.UserGetRequest) (responses.UserGetResponse, int, error) {
+func (UserUseCase) UserGetAction(req requests.UserGetRequest) (responses.UserGetResponse, int, error) {
 	// ユーザーIDを取得
 	userId := req.UserID
 

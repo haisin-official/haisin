@@ -1,6 +1,6 @@
 package requests
 
-type CallbackRequest struct {
+type CallbackPostRequest struct {
 	State string
 	Code  string
 }

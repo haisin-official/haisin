@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	requests "github.com/haisin-official/haisin/app/http/requests/OAuth"
-	responses "github.com/haisin-official/haisin/app/http/responses/OAuth"
+	requests "github.com/haisin-official/haisin/app/requests/OAuth"
+	responses "github.com/haisin-official/haisin/app/responses/OAuth"
 	"github.com/haisin-official/haisin/app/utils"
 	"github.com/haisin-official/haisin/config"
 	"github.com/haisin-official/haisin/database"
@@ -14,26 +14,24 @@ import (
 	"github.com/haisin-official/haisin/ent/user"
 )
 
-func (OAuthUseCases) CallbackAction(req requests.CallbackRequest) (responses.OAuthCallback, int, error) {
+func (OAuthUseCase) CallbackPostAction(req requests.CallbackPostRequest) (responses.CallbackPostResponse, int, error) {
 	// stateとcodeを分解してOAuthログインの検証を行う
 	token, httpCode, err := config.CheckOAuthToken(req.State, req.Code)
 	if err != nil {
-		return responses.OAuthCallback{}, httpCode, err
+		return responses.CallbackPostResponse{}, httpCode, err
 	}
 
 	// OAuth2.0 を使用してEmailアドレスを取得
 	userInfo, httpCode, err := config.GetUserInfo(token)
 	if err != nil {
-		return responses.OAuthCallback{}, httpCode, err
+		return responses.CallbackPostResponse{}, httpCode, err
 	}
 
 	userEmail := &userInfo.Email
 
 	// Emailが取得できない場合, ユーザー登録ができないのでエラーを返却する
 	if userEmail == nil {
-		httpCode = http.StatusInternalServerError
-		err = fmt.Errorf("could not get email address")
-		return responses.OAuthCallback{}, httpCode, err
+		return responses.CallbackPostResponse{}, http.StatusInternalServerError, fmt.Errorf("could not get email address")
 	}
 
 	// Emailが登録されているか確認を行う
@@ -49,18 +47,18 @@ func (OAuthUseCases) CallbackAction(req requests.CallbackRequest) (responses.OAu
 		// ユーザーが存在しない場合は新規登録する
 		httpCode, err := register(*userEmail)
 		if err != nil {
-			return responses.OAuthCallback{}, httpCode, err
+			return responses.CallbackPostResponse{}, httpCode, err
 		}
 	}
 	// ユーザーデータを取得
 	userData, httpCode, err := login(*userEmail)
 	if err != nil {
-		return responses.OAuthCallback{}, httpCode, err
+		return responses.CallbackPostResponse{}, httpCode, err
 	}
 
 	// 返り値のデータを構築
-	res := responses.OAuthCallback{
-		User: responses.OAuthCallbackUser{
+	res := responses.CallbackPostResponse{
+		User: responses.CallbackPostUser{
 			Uuid:  userData.ID,
 			Slug:  userData.Slug,
 			Email: userData.Email,

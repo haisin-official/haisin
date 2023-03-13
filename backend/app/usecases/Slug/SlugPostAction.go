@@ -5,28 +5,28 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	requests "github.com/haisin-official/haisin/app/http/requests/Ga"
-	responses "github.com/haisin-official/haisin/app/http/responses/Ga"
+	requests "github.com/haisin-official/haisin/app/requests/Slug"
+	responses "github.com/haisin-official/haisin/app/responses/Slug"
 	"github.com/haisin-official/haisin/database"
 	"github.com/haisin-official/haisin/ent"
 )
 
-func (GaUseCases) PostGaAction(req requests.GaPostRequest) (responses.GaPostReponse, int, error) {
+func (SlugUseCase) SlugPostAction(req requests.SlugPostRequest) (responses.SlugPostReponse, int, error) {
 	userId := req.UserID
-	ga := req.Ga
+	slug := req.Slug
 
-	user, httpCode, err := changeGa(userId, ga)
+	user, httpCode, err := changeSlug(userId, slug)
 	if err != nil {
-		return responses.GaPostReponse{}, httpCode, err
+		return responses.SlugPostReponse{}, httpCode, err
 	}
 
-	res := responses.GaPostReponse{
-		Ga: *user.Ga,
+	res := responses.SlugPostReponse{
+		Slug: user.Slug,
 	}
 	return res, http.StatusOK, nil
 }
 
-func changeGa(userId uuid.UUID, ga string) (*ent.User, int, error) {
+func changeSlug(userId uuid.UUID, slug string) (*ent.User, int, error) {
 	client := database.GetClient()
 	ctx := context.Background()
 
@@ -34,7 +34,7 @@ func changeGa(userId uuid.UUID, ga string) (*ent.User, int, error) {
 	// unique conflictの検証は後でやる
 	user, err := client.User.
 		UpdateOneID(userId).
-		SetGa(ga).
+		SetSlug(slug).
 		Save(ctx)
 	if ent.IsConstraintError(err) {
 		return nil, http.StatusConflict, err
