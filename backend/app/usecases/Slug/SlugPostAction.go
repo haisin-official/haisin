@@ -5,13 +5,13 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	requests "github.com/haisin-official/haisin/app/http/requests/Slug"
-	responses "github.com/haisin-official/haisin/app/http/responses/Slug"
+	requests "github.com/haisin-official/haisin/app/requests/Slug"
+	responses "github.com/haisin-official/haisin/app/responses/Slug"
 	"github.com/haisin-official/haisin/database"
 	"github.com/haisin-official/haisin/ent"
 )
 
-func (SlugUseCases) PostSlugAction(req requests.SlugPostRequest) (responses.SlugPostReponse, int, error) {
+func (SlugUseCases) SlugPostAction(req requests.SlugPostRequest) (responses.SlugPostReponse, int, error) {
 	userId := req.UserID
 	slug := req.Slug
 
