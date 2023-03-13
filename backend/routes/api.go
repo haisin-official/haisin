@@ -17,8 +17,8 @@ func Router(router *gin.Engine) {
 	oauth := v1.Group("/oauth/google")
 	{
 		controller := OAuthController.OAuthController{}
-		oauth.GET("/redirect", controller.Redirect)
-		oauth.POST("/callback", controller.Callback)
+		oauth.GET("/redirect", controller.RedirectGet)
+		oauth.POST("/callback", controller.CallbackPost)
 	}
 
 	user := v1.Group("/user")
