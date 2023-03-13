@@ -8,5 +8,6 @@ import (
 func Register() {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("ga", gaValidator)
+		v.RegisterValidation("service", serviceValidator)
 	}
 }
