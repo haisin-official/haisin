@@ -5,13 +5,13 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	requests "github.com/haisin-official/haisin/app/http/requests/Ga"
-	responses "github.com/haisin-official/haisin/app/http/responses/Ga"
+	requests "github.com/haisin-official/haisin/app/requests/Ga"
+	responses "github.com/haisin-official/haisin/app/responses/Ga"
 	"github.com/haisin-official/haisin/database"
 	"github.com/haisin-official/haisin/ent"
 )
 
-func (GaUseCases) PostGaAction(req requests.GaPostRequest) (responses.GaPostReponse, int, error) {
+func (GaUseCase) GaPostAction(req requests.GaPostRequest) (responses.GaPostReponse, int, error) {
 	userId := req.UserID
 	ga := req.Ga
 

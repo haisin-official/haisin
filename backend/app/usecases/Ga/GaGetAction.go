@@ -5,14 +5,14 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	requests "github.com/haisin-official/haisin/app/http/requests/Ga"
-	responses "github.com/haisin-official/haisin/app/http/responses/Ga"
+	requests "github.com/haisin-official/haisin/app/requests/Ga"
+	responses "github.com/haisin-official/haisin/app/responses/Ga"
 	"github.com/haisin-official/haisin/database"
 	"github.com/haisin-official/haisin/ent"
 	"github.com/haisin-official/haisin/ent/user"
 )
 
-func (GaUseCases) GetGaAction(req requests.GaGetRequest) (responses.GaGetResponse, int, error) {
+func (GaUseCase) GaGetAction(req requests.GaGetRequest) (responses.GaGetResponse, int, error) {
 	userId := req.UserID
 
 	user, httpCode, err := getGa(userId)

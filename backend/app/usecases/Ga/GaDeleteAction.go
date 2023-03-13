@@ -5,12 +5,12 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	requests "github.com/haisin-official/haisin/app/http/requests/Ga"
-	responses "github.com/haisin-official/haisin/app/http/responses/Ga"
+	requests "github.com/haisin-official/haisin/app/requests/Ga"
+	responses "github.com/haisin-official/haisin/app/responses/Ga"
 	"github.com/haisin-official/haisin/database"
 )
 
-func (GaUseCases) DeleteGaAction(req requests.GaDeleteRequest) (responses.GaDeleteResponse, int, error) {
+func (GaUseCase) GaDeleteAction(req requests.GaDeleteRequest) (responses.GaDeleteResponse, int, error) {
 	userId := req.UserID
 
 	httpCode, err := deleteGa(userId)
