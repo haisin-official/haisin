@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	requests "github.com/haisin-official/haisin/app/http/requests/Ga"
+	requests "github.com/haisin-official/haisin/app/requests/Ga"
 	usecases "github.com/haisin-official/haisin/app/usecases/Ga"
 	"github.com/haisin-official/haisin/config"
 	"github.com/haisin-official/haisin/config/session"
@@ -37,7 +37,7 @@ func (GaController) GetGa(c *gin.Context) {
 
 	fmt.Println(data.SessionId, data.UserId)
 
-	result, code, err := usecases.GaUseCases{}.GetGaAction(req)
+	result, code, err := usecases.GaUseCase{}.GaGetAction(req)
 
 	if err != nil {
 		c.AbortWithStatus(code)
@@ -78,7 +78,7 @@ func (GaController) PostGa(c *gin.Context) {
 
 	fmt.Println(data.SessionId, data.UserId)
 
-	result, code, err := usecases.GaUseCases{}.PostGaAction(req)
+	result, code, err := usecases.GaUseCase{}.GaPostAction(req)
 
 	if err != nil {
 		c.AbortWithStatus(code)
@@ -112,7 +112,7 @@ func (GaController) DeleteGa(c *gin.Context) {
 
 	fmt.Println(data.SessionId, data.UserId)
 
-	result, code, err := usecases.GaUseCases{}.DeleteGaAction(req)
+	result, code, err := usecases.GaUseCase{}.GaDeleteAction(req)
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": http.StatusText(http.StatusInternalServerError)})
