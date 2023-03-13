@@ -41,8 +41,8 @@ func Router(router *gin.Engine) {
 	ga.Use(middleware.Authenticate())
 	{
 		controller := GaController.GaController{}
-		ga.GET("/", controller.GetGa)
-		ga.POST("/", controller.PostGa)
-		ga.DELETE("/", controller.DeleteGa)
+		ga.GET("/", controller.GaGet)
+		ga.POST("/", controller.GaPost)
+		ga.DELETE("/", controller.GaDelete)
 	}
 }

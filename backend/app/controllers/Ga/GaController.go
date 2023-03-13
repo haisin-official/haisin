@@ -14,7 +14,7 @@ import (
 
 type GaController struct{}
 
-func (GaController) GetGa(c *gin.Context) {
+func (GaController) GaGet(c *gin.Context) {
 	cKey := config.GetEnv("SESSION_KEY")
 	data, httpCode, err := session.GetSession(c, cKey)
 	if err != nil {
@@ -48,7 +48,7 @@ func (GaController) GetGa(c *gin.Context) {
 	c.JSON(code, result)
 }
 
-func (GaController) PostGa(c *gin.Context) {
+func (GaController) GaPost(c *gin.Context) {
 	cKey := config.GetEnv("SESSION_KEY")
 	data, httpCode, err := session.GetSession(c, cKey)
 	if err != nil {
@@ -89,7 +89,7 @@ func (GaController) PostGa(c *gin.Context) {
 	c.JSON(code, result)
 }
 
-func (GaController) DeleteGa(c *gin.Context) {
+func (GaController) GaDelete(c *gin.Context) {
 	cKey := config.GetEnv("SESSION_KEY")
 	data, httpCode, err := session.GetSession(c, cKey)
 	if err != nil {
