@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	requests "github.com/haisin-official/haisin/app/http/requests/User"
+	requests "github.com/haisin-official/haisin/app/requests/User"
 	usecases "github.com/haisin-official/haisin/app/usecases/User"
 	"github.com/haisin-official/haisin/config"
 	"github.com/haisin-official/haisin/config/session"
@@ -15,7 +15,7 @@ import (
 type UserController struct{}
 
 // ログイン中のユーザーデータを取得
-func (UserController) GetUserMe(c *gin.Context) {
+func (UserController) UserMeGet(c *gin.Context) {
 
 	cKey := config.GetEnv("SESSION_KEY")
 	data, httpCode, err := session.GetSession(c, cKey)
@@ -40,7 +40,7 @@ func (UserController) GetUserMe(c *gin.Context) {
 	// dataからUserIDを取得
 	fmt.Println(data.SessionId, data.UserId)
 
-	result, code, err := usecases.UserUseCases{}.GetUserAction(req)
+	result, code, err := usecases.UserUseCase{}.UserGetAction(req)
 
 	if err != nil {
 		c.AbortWithStatus(code)
@@ -52,7 +52,7 @@ func (UserController) GetUserMe(c *gin.Context) {
 }
 
 // ログアウトする
-func (UserController) Logout(c *gin.Context) {
+func (UserController) UserLogoutPost(c *gin.Context) {
 	cKey := config.GetEnv("SESSION_KEY")
 	if err := session.DeleteSession(c, cKey); err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
