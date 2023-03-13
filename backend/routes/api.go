@@ -33,8 +33,8 @@ func Router(router *gin.Engine) {
 	slug.Use(middleware.Authenticate())
 	{
 		controller := SlugController.SlugController{}
-		slug.GET("/", controller.GetSlug)
-		slug.POST("/", controller.PostSlug)
+		slug.GET("/", controller.SlugGet)
+		slug.POST("/", controller.SlugPost)
 	}
 
 	ga := v1.Group("/ga")
