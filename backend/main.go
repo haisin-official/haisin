@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gin-gonic/gin"
+	"github.com/haisin-official/haisin/app/validators"
 	"github.com/haisin-official/haisin/config"
 	"github.com/haisin-official/haisin/database"
 	"github.com/haisin-official/haisin/routes"
@@ -22,6 +23,9 @@ func main() {
 
 	// Add routes for Gin Framework
 	routes.Router(r)
+
+	// Register Validators for Gin Framework
+	validators.Register()
 
 	port := config.GetEnv("HTTP_PORT")
 	r.Run(":" + port)
