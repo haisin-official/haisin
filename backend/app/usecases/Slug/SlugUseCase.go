@@ -1,3 +1,3 @@
 package usecases
 
-type SlugUseCases struct{}
+type SlugUseCase struct{}

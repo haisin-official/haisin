@@ -11,7 +11,7 @@ import (
 	"github.com/haisin-official/haisin/ent"
 )
 
-func (SlugUseCases) SlugPostAction(req requests.SlugPostRequest) (responses.SlugPostReponse, int, error) {
+func (SlugUseCase) SlugPostAction(req requests.SlugPostRequest) (responses.SlugPostReponse, int, error) {
 	userId := req.UserID
 	slug := req.Slug
 

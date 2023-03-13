@@ -12,7 +12,7 @@ import (
 	"github.com/haisin-official/haisin/ent/user"
 )
 
-func (SlugUseCases) SlugGetAction(req requests.SlugGetRequest) (responses.SlugGetResponse, int, error) {
+func (SlugUseCase) SlugGetAction(req requests.SlugGetRequest) (responses.SlugGetResponse, int, error) {
 	userId := req.UserID
 
 	user, httpCode, err := getSlug(userId)

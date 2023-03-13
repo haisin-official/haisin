@@ -6,7 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	requests "github.com/haisin-official/haisin/app/http/requests/Slug"
+	requests "github.com/haisin-official/haisin/app/requests/Slug"
 	usecases "github.com/haisin-official/haisin/app/usecases/Slug"
 	"github.com/haisin-official/haisin/config"
 	"github.com/haisin-official/haisin/config/session"
@@ -14,7 +14,7 @@ import (
 
 type SlugController struct{}
 
-func (SlugController) GetSlug(c *gin.Context) {
+func (SlugController) SlugGet(c *gin.Context) {
 	cKey := config.GetEnv("SESSION_KEY")
 	data, httpCode, err := session.GetSession(c, cKey)
 	if err != nil {
@@ -37,7 +37,7 @@ func (SlugController) GetSlug(c *gin.Context) {
 
 	fmt.Println(data.SessionId, data.UserId)
 
-	result, code, err := usecases.SlugUseCases{}.GetSlugAction(req)
+	result, code, err := usecases.SlugUseCase{}.SlugGetAction(req)
 
 	if err != nil {
 		c.AbortWithStatus(code)
@@ -48,7 +48,7 @@ func (SlugController) GetSlug(c *gin.Context) {
 	c.JSON(code, result)
 }
 
-func (SlugController) PostSlug(c *gin.Context) {
+func (SlugController) SlugPost(c *gin.Context) {
 	cKey := config.GetEnv("SESSION_KEY")
 	data, httpCode, err := session.GetSession(c, cKey)
 	if err != nil {
@@ -78,7 +78,7 @@ func (SlugController) PostSlug(c *gin.Context) {
 
 	fmt.Println(data.SessionId, data.UserId)
 
-	result, code, err := usecases.SlugUseCases{}.PostSlugAction(req)
+	result, code, err := usecases.SlugUseCase{}.SlugPostAction(req)
 
 	if err != nil {
 		c.AbortWithStatus(code)
