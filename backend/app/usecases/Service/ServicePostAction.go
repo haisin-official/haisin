@@ -56,7 +56,9 @@ func (ServiceUseCase) ServicePostAction(req requests.ServicePostRequest) (respon
 		// 存在する場合
 		// updateを行う
 		httpCode, err := update(service, *nu)
-
+		if err != nil {
+			return responses.ServicePostResponse{}, httpCode, err
+		}
 	}
 
 	// 最新の情報を読み取る
