@@ -10,7 +10,7 @@ type ServiceGetResponseServices struct {
 	Url     string `json:"url" binding:"required,url"`
 }
 
-type SericePostResponse struct {
+type ServicePostResponse struct {
 	Service string `json:"service" binding:"required,service"`
 	Url     string `json:"url" binding:"required,url"`
 }
