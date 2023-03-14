@@ -4,5 +4,5 @@ CREATE TABLE "users" ("id" uuid NOT NULL, "create_time" timestamptz NOT NULL, "u
 CREATE UNIQUE INDEX "users_email_key" ON "users" ("email");
 -- create index "users_slug_key" to table: "users"
 CREATE UNIQUE INDEX "users_slug_key" ON "users" ("slug");
--- create "urls" table
-CREATE TABLE "urls" ("id" uuid NOT NULL, "create_time" timestamptz NOT NULL, "update_time" timestamptz NOT NULL, "service" character varying NOT NULL, "url" character varying NOT NULL, "user_uuid" uuid NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "urls_users_uuid" FOREIGN KEY ("user_uuid") REFERENCES "users" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
+-- create "services" table
+CREATE TABLE "services" ("id" uuid NOT NULL, "create_time" timestamptz NOT NULL, "update_time" timestamptz NOT NULL, "service" character varying NOT NULL, "url" character varying NOT NULL, "user_uuid" uuid NOT NULL, PRIMARY KEY ("id"), CONSTRAINT "services_users_uuid" FOREIGN KEY ("user_uuid") REFERENCES "users" ("id") ON UPDATE NO ACTION ON DELETE CASCADE);
