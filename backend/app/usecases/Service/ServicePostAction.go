@@ -55,6 +55,7 @@ func (ServiceUseCase) ServicePostAction(req requests.ServicePostRequest) (respon
 	} else {
 		// 存在する場合
 		// updateを行う
+		httpCode, err := update(service, *nu)
 
 	}
 
@@ -122,8 +123,7 @@ func register(userId uuid.UUID, name string, newURL url.URL) (int, error) {
 		return http.StatusUnprocessableEntity, err
 	} else if ent.IsConstraintError(err) {
 		return http.StatusConflict, err
-	}
-	if err != nil {
+	} else if err != nil {
 		return http.StatusInternalServerError, fmt.Errorf("something error has occured \n%v", err)
 	}
 
@@ -131,36 +131,19 @@ func register(userId uuid.UUID, name string, newURL url.URL) (int, error) {
 
 }
 
-func update(userId uuid.UUID, name string, newURL url.URL) (int, error) {
+func update(service *ent.Service, newURL url.URL) (int, error) {
 	client := database.GetClient()
 	ctx := context.Background()
 
-	if err := service.ServiceValidator(service.Service(name)); err != nil {
-		// サービスが存在しないのでエラーを返す
-		fmt.Println("not found this service: ", name)
-		return http.StatusUnprocessableEntity, err
-	}
-
-	// URLのIDを新しく生成
-	u, err := utils.GenUUID()
-	if err != nil {
-		return http.StatusInternalServerError, err
-	}
-
-	// upsertはconflictに指定するカラムがuniqueの必要があるため使用できない。oauthの時と同様、丁寧にinsertすべきかupdateすべきか分岐させる必要がある
 	if err := client.Service.
-		Create().
-		SetID(u).
-		SetService(service.Service(name)).
+		UpdateOneID(service.ID).
 		SetURL(newURL.String()).
-		SetUserIDID(userId).
-		Exec(ctx); ent.IsValidationError(err) {
+		Exec(ctx); ent.IsNotFound(err) {
+		return http.StatusNotFound, err
+	} else if ent.IsValidationError(err) {
 		return http.StatusUnprocessableEntity, err
-	} else if ent.IsConstraintError(err) {
-		return http.StatusConflict, err
-	}
-	if err != nil {
-		return http.StatusInternalServerError, fmt.Errorf("something error has occured \n%v", err)
+	} else if err != nil {
+		return http.StatusInternalServerError, err
 	}
 
 	return http.StatusOK, nil
