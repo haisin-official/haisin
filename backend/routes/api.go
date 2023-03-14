@@ -53,5 +53,6 @@ func Router(router *gin.Engine) {
 		controller := ServiceController.ServiceController{}
 		service.GET("/", controller.ServiceGet)
 		service.POST("/", controller.ServicePost)
+		service.DELETE("/:name", controller.ServiceDelete)
 	}
 }
