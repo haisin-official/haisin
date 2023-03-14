@@ -9,6 +9,6 @@ type UserGetResponse struct {
 type UserGetUser struct {
 	Uuid  uuid.UUID `json:"uuid" binding:"required"`
 	Email string    `json:"email" binding:"required,email"`
-	Slug  string    `json:"slug" binding:"required,alphanumunicode,min=4,max=30"`
+	Slug  string    `json:"slug" binding:"required,alphanum,min=4,max=30"`
 	Ga    *string   `json:"ga"`
 }
