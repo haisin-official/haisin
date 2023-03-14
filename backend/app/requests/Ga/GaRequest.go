@@ -12,7 +12,7 @@ type GaPostRequest struct {
 }
 
 type GaPostRequestBody struct {
-	Ga string `json:"ga" binding:"required,alphanumunicode,ga"`
+	Ga string `json:"ga" binding:"required,ga"`
 }
 
 type GaDeleteRequest struct {

@@ -64,17 +64,11 @@ func (SlugController) SlugPost(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": http.StatusText(http.StatusInternalServerError)})
 		return
 	}
-	// リクエストからSLUGが存在するか確認する
+	// SLUGのValidationを行う
 	reqBody := new(requests.SlugPostRequestBody)
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		fmt.Println(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": http.StatusText(http.StatusBadRequest)})
-		return
-	}
-
-	// Validationを実行する
-	if err := c.ShouldBind(reqBody); err != nil {
-		c.AbortWithStatus(http.StatusUnprocessableEntity)
-		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": http.StatusText(http.StatusUnprocessableEntity)})
 		return
 	}
 
