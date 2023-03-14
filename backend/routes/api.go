@@ -51,6 +51,7 @@ func Router(router *gin.Engine) {
 	service.Use(middleware.Authenticate())
 	{
 		controller := ServiceController.ServiceController{}
+		service.GET("/", controller.ServiceGet)
 		service.POST("/", controller.ServicePost)
 	}
 }
