@@ -68,6 +68,7 @@ func register(userId uuid.UUID, serviceName string, serviceUrl string) (*ent.Ser
 		return nil, http.StatusInternalServerError, err
 	}
 
+	// upsertはconflictに指定するカラムがuniqueの必要があるため使用できない。oauthの時と同様、丁寧にinsertすべきかupdateすべきか分岐させる必要がある
 	if err := client.Service.
 		Create().
 		SetID(u).
