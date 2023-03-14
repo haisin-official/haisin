@@ -7,7 +7,7 @@ type GaGetResponse struct {
 
 type GaPostReponse struct {
 	// Ga is required when post
-	Ga string `json:"ga" binding:"required"`
+	Ga string `json:"ga" binding:"required, alphanumunicode, ga"`
 }
 
 type GaDeleteResponse struct {

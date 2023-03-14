@@ -8,11 +8,11 @@ type GaGetRequest struct {
 
 type GaPostRequest struct {
 	UserID uuid.UUID
-	Ga     string // new GA4 Code
+	Ga     string
 }
 
 type GaPostRequestBody struct {
-	Ga string `json:"ga" binding:"required"`
+	Ga string `json:"ga" binding:"required, alphanumunicode, ga"`
 }
 
 type GaDeleteRequest struct {
