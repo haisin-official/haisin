@@ -13,6 +13,7 @@ import (
 	"github.com/haisin-official/haisin/database"
 	"github.com/haisin-official/haisin/ent"
 	"github.com/haisin-official/haisin/ent/service"
+	"github.com/haisin-official/haisin/ent/user"
 )
 
 func (ServiceUseCase) ServicePostAction(req requests.ServicePostRequest) (responses.ServicePostResponse, int, error) {
@@ -58,19 +59,27 @@ func register(userId uuid.UUID, serviceName string, serviceUrl string) (*ent.Ser
 
 	if err := service.ServiceValidator(s); err != nil {
 		// サービスが存在しないのでエラーを返す
+		fmt.Println("not found this service: ", serviceName)
 		return nil, http.StatusUnprocessableEntity, err
 	}
+	// URLのIDを新しく生成
+	u, err := utils.GenUUID()
+	if err != nil {
+		return nil, http.StatusInternalServerError, err
+	}
 
-	err := client.Service.
+	if err := client.Service.
 		Create().
-		SetID(userId).
+		SetID(u).
 		SetService(s).
-		OnConflictColumns(service.FieldService).
-		UpdateNewValues().
 		SetURL(serviceUrl).
-		Exec(ctx)
-
-	if ent.IsNotFound(err) {
+		SetUserIDID(userId).
+		OnConflictColumns(
+			service.FieldService,
+			service.UserIDColumn,
+		).
+		UpdateNewValues().
+		Exec(ctx); ent.IsNotFound(err) {
 		return nil, http.StatusNotFound, err
 	} else if ent.IsValidationError(err) {
 		return nil, http.StatusUnprocessableEntity, err
@@ -84,11 +93,13 @@ func register(userId uuid.UUID, serviceName string, serviceUrl string) (*ent.Ser
 	// 新しく取得したサービスとURLを取得
 	service, err := client.Service.
 		Query().
-		Unique(true).
 		Select(service.FieldService, service.FieldURL).
-		Where(service.IDEQ(userId)).
-		Where(service.ServiceIn(s)).
-		Only(ctx)
+		Where(
+			service.And(
+				service.ServiceEQ(s),
+				service.HasUserIDWith(user.IDEQ(userId)),
+			),
+		).Only(ctx)
 
 	if ent.IsNotFound(err) {
 		return nil, http.StatusNotFound, err
