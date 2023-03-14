@@ -12,5 +12,5 @@ type SlugPostRequest struct {
 }
 
 type SlugPostRequestBody struct {
-	Slug string `json:"slug" binding:"required"`
+	Slug string `json:"slug" binding:"required,alphanum,min=4,max=30"`
 }

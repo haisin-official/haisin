@@ -51,6 +51,7 @@ func (GaController) GaGet(c *gin.Context) {
 func (GaController) GaPost(c *gin.Context) {
 	cKey := config.GetEnv("SESSION_KEY")
 	data, httpCode, err := session.GetSession(c, cKey)
+
 	if err != nil {
 		fmt.Println(err)
 		c.AbortWithStatus(httpCode)
@@ -64,9 +65,11 @@ func (GaController) GaPost(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": http.StatusText(http.StatusInternalServerError)})
 		return
 	}
-	// リクエストからGaが存在するか確認する
+	// ValidationとBindを実行
 	reqBody := new(requests.GaPostRequestBody)
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		fmt.Println(err.Error())
+		c.AbortWithStatus(http.StatusBadRequest)
 		c.JSON(http.StatusBadRequest, gin.H{"error": http.StatusText(http.StatusBadRequest)})
 		return
 	}
