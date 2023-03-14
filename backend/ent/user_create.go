@@ -13,7 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
-	"github.com/haisin-official/haisin/ent/url"
+	"github.com/haisin-official/haisin/ent/service"
 	"github.com/haisin-official/haisin/ent/user"
 )
 
@@ -85,17 +85,17 @@ func (uc *UserCreate) SetID(u uuid.UUID) *UserCreate {
 	return uc
 }
 
-// AddUUIDIDs adds the "uuid" edge to the Url entity by IDs.
+// AddUUIDIDs adds the "uuid" edge to the Service entity by IDs.
 func (uc *UserCreate) AddUUIDIDs(ids ...uuid.UUID) *UserCreate {
 	uc.mutation.AddUUIDIDs(ids...)
 	return uc
 }
 
-// AddUUID adds the "uuid" edges to the Url entity.
-func (uc *UserCreate) AddUUID(u ...*Url) *UserCreate {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// AddUUID adds the "uuid" edges to the Service entity.
+func (uc *UserCreate) AddUUID(s ...*Service) *UserCreate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
 	}
 	return uc.AddUUIDIDs(ids...)
 }
@@ -240,7 +240,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeUUID,
-					Column: url.FieldID,
+					Column: service.FieldID,
 				},
 			},
 		}

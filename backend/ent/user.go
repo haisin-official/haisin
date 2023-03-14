@@ -35,7 +35,7 @@ type User struct {
 // UserEdges holds the relations/edges for other nodes in the graph.
 type UserEdges struct {
 	// UUID holds the value of the uuid edge.
-	UUID []*Url `json:"uuid,omitempty"`
+	UUID []*Service `json:"uuid,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [1]bool
@@ -43,7 +43,7 @@ type UserEdges struct {
 
 // UUIDOrErr returns the UUID value or an error if the edge
 // was not loaded in eager-loading.
-func (e UserEdges) UUIDOrErr() ([]*Url, error) {
+func (e UserEdges) UUIDOrErr() ([]*Service, error) {
 	if e.loadedTypes[0] {
 		return e.UUID, nil
 	}
@@ -119,7 +119,7 @@ func (u *User) assignValues(columns []string, values []any) error {
 }
 
 // QueryUUID queries the "uuid" edge of the User entity.
-func (u *User) QueryUUID() *URLQuery {
+func (u *User) QueryUUID() *ServiceQuery {
 	return NewUserClient(u.config).QueryUUID(u)
 }
 

@@ -8,13 +8,13 @@ import (
 	"github.com/google/uuid"
 )
 
-// Url holds the schema definition for the Url entity.
-type Url struct {
+// Service holds the schema definition for the Service entity.
+type Service struct {
 	ent.Schema
 }
 
-// Fields of the Url.
-func (Url) Fields() []ent.Field {
+// Fields of the Service.
+func (Service) Fields() []ent.Field {
 	return []ent.Field{
 		field.UUID("id", uuid.UUID{}).
 			Unique(),
@@ -26,15 +26,15 @@ func (Url) Fields() []ent.Field {
 	}
 }
 
-// Mixin of the Url.
-func (Url) Mixin() []ent.Mixin {
+// Mixin of the Service.
+func (Service) Mixin() []ent.Mixin {
 	return []ent.Mixin{
 		mixin.Time{},
 	}
 }
 
-// Edges of the Url.
-func (Url) Edges() []ent.Edge {
+// Edges of the Service.
+func (Service) Edges() []ent.Edge {
 	// return nil
 	return []ent.Edge{
 		edge.From("user_id", User.Type).

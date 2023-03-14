@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	// UrlsColumns holds the columns for the "urls" table.
-	UrlsColumns = []*schema.Column{
+	// ServicesColumns holds the columns for the "services" table.
+	ServicesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeUUID, Unique: true},
 		{Name: "create_time", Type: field.TypeTime},
 		{Name: "update_time", Type: field.TypeTime},
@@ -17,15 +17,15 @@ var (
 		{Name: "url", Type: field.TypeString, Size: 2083},
 		{Name: "user_uuid", Type: field.TypeUUID},
 	}
-	// UrlsTable holds the schema information for the "urls" table.
-	UrlsTable = &schema.Table{
-		Name:       "urls",
-		Columns:    UrlsColumns,
-		PrimaryKey: []*schema.Column{UrlsColumns[0]},
+	// ServicesTable holds the schema information for the "services" table.
+	ServicesTable = &schema.Table{
+		Name:       "services",
+		Columns:    ServicesColumns,
+		PrimaryKey: []*schema.Column{ServicesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "urls_users_uuid",
-				Columns:    []*schema.Column{UrlsColumns[5]},
+				Symbol:     "services_users_uuid",
+				Columns:    []*schema.Column{ServicesColumns[5]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
@@ -48,11 +48,11 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		UrlsTable,
+		ServicesTable,
 		UsersTable,
 	}
 )
 
 func init() {
-	UrlsTable.ForeignKeys[0].RefTable = UsersTable
+	ServicesTable.ForeignKeys[0].RefTable = UsersTable
 }

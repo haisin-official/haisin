@@ -13,7 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/haisin-official/haisin/ent/predicate"
-	"github.com/haisin-official/haisin/ent/url"
+	"github.com/haisin-official/haisin/ent/service"
 	"github.com/haisin-official/haisin/ent/user"
 )
 
@@ -68,17 +68,17 @@ func (uu *UserUpdate) ClearGa() *UserUpdate {
 	return uu
 }
 
-// AddUUIDIDs adds the "uuid" edge to the Url entity by IDs.
+// AddUUIDIDs adds the "uuid" edge to the Service entity by IDs.
 func (uu *UserUpdate) AddUUIDIDs(ids ...uuid.UUID) *UserUpdate {
 	uu.mutation.AddUUIDIDs(ids...)
 	return uu
 }
 
-// AddUUID adds the "uuid" edges to the Url entity.
-func (uu *UserUpdate) AddUUID(u ...*Url) *UserUpdate {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// AddUUID adds the "uuid" edges to the Service entity.
+func (uu *UserUpdate) AddUUID(s ...*Service) *UserUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
 	}
 	return uu.AddUUIDIDs(ids...)
 }
@@ -88,23 +88,23 @@ func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
 }
 
-// ClearUUID clears all "uuid" edges to the Url entity.
+// ClearUUID clears all "uuid" edges to the Service entity.
 func (uu *UserUpdate) ClearUUID() *UserUpdate {
 	uu.mutation.ClearUUID()
 	return uu
 }
 
-// RemoveUUIDIDs removes the "uuid" edge to Url entities by IDs.
+// RemoveUUIDIDs removes the "uuid" edge to Service entities by IDs.
 func (uu *UserUpdate) RemoveUUIDIDs(ids ...uuid.UUID) *UserUpdate {
 	uu.mutation.RemoveUUIDIDs(ids...)
 	return uu
 }
 
-// RemoveUUID removes "uuid" edges to Url entities.
-func (uu *UserUpdate) RemoveUUID(u ...*Url) *UserUpdate {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// RemoveUUID removes "uuid" edges to Service entities.
+func (uu *UserUpdate) RemoveUUID(s ...*Service) *UserUpdate {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
 	}
 	return uu.RemoveUUIDIDs(ids...)
 }
@@ -202,7 +202,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeUUID,
-					Column: url.FieldID,
+					Column: service.FieldID,
 				},
 			},
 		}
@@ -218,7 +218,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeUUID,
-					Column: url.FieldID,
+					Column: service.FieldID,
 				},
 			},
 		}
@@ -237,7 +237,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeUUID,
-					Column: url.FieldID,
+					Column: service.FieldID,
 				},
 			},
 		}
@@ -304,17 +304,17 @@ func (uuo *UserUpdateOne) ClearGa() *UserUpdateOne {
 	return uuo
 }
 
-// AddUUIDIDs adds the "uuid" edge to the Url entity by IDs.
+// AddUUIDIDs adds the "uuid" edge to the Service entity by IDs.
 func (uuo *UserUpdateOne) AddUUIDIDs(ids ...uuid.UUID) *UserUpdateOne {
 	uuo.mutation.AddUUIDIDs(ids...)
 	return uuo
 }
 
-// AddUUID adds the "uuid" edges to the Url entity.
-func (uuo *UserUpdateOne) AddUUID(u ...*Url) *UserUpdateOne {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// AddUUID adds the "uuid" edges to the Service entity.
+func (uuo *UserUpdateOne) AddUUID(s ...*Service) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
 	}
 	return uuo.AddUUIDIDs(ids...)
 }
@@ -324,23 +324,23 @@ func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
 }
 
-// ClearUUID clears all "uuid" edges to the Url entity.
+// ClearUUID clears all "uuid" edges to the Service entity.
 func (uuo *UserUpdateOne) ClearUUID() *UserUpdateOne {
 	uuo.mutation.ClearUUID()
 	return uuo
 }
 
-// RemoveUUIDIDs removes the "uuid" edge to Url entities by IDs.
+// RemoveUUIDIDs removes the "uuid" edge to Service entities by IDs.
 func (uuo *UserUpdateOne) RemoveUUIDIDs(ids ...uuid.UUID) *UserUpdateOne {
 	uuo.mutation.RemoveUUIDIDs(ids...)
 	return uuo
 }
 
-// RemoveUUID removes "uuid" edges to Url entities.
-func (uuo *UserUpdateOne) RemoveUUID(u ...*Url) *UserUpdateOne {
-	ids := make([]uuid.UUID, len(u))
-	for i := range u {
-		ids[i] = u[i].ID
+// RemoveUUID removes "uuid" edges to Service entities.
+func (uuo *UserUpdateOne) RemoveUUID(s ...*Service) *UserUpdateOne {
+	ids := make([]uuid.UUID, len(s))
+	for i := range s {
+		ids[i] = s[i].ID
 	}
 	return uuo.RemoveUUIDIDs(ids...)
 }
@@ -468,7 +468,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeUUID,
-					Column: url.FieldID,
+					Column: service.FieldID,
 				},
 			},
 		}
@@ -484,7 +484,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeUUID,
-					Column: url.FieldID,
+					Column: service.FieldID,
 				},
 			},
 		}
@@ -503,7 +503,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: &sqlgraph.FieldSpec{
 					Type:   field.TypeUUID,
-					Column: url.FieldID,
+					Column: service.FieldID,
 				},
 			},
 		}

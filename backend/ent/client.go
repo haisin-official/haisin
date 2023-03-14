@@ -15,7 +15,7 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/haisin-official/haisin/ent/url"
+	"github.com/haisin-official/haisin/ent/service"
 	"github.com/haisin-official/haisin/ent/user"
 )
 
@@ -24,8 +24,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
-	// Url is the client for interacting with the Url builders.
-	Url *URLClient
+	// Service is the client for interacting with the Service builders.
+	Service *ServiceClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -41,7 +41,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
-	c.Url = NewURLClient(c.config)
+	c.Service = NewServiceClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -123,10 +123,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Url:    NewURLClient(cfg),
-		User:   NewUserClient(cfg),
+		ctx:     ctx,
+		config:  cfg,
+		Service: NewServiceClient(cfg),
+		User:    NewUserClient(cfg),
 	}, nil
 }
 
@@ -144,17 +144,17 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:    ctx,
-		config: cfg,
-		Url:    NewURLClient(cfg),
-		User:   NewUserClient(cfg),
+		ctx:     ctx,
+		config:  cfg,
+		Service: NewServiceClient(cfg),
+		User:    NewUserClient(cfg),
 	}, nil
 }
 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Url.
+//		Service.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -176,22 +176,22 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Url.Use(hooks...)
+	c.Service.Use(hooks...)
 	c.User.Use(hooks...)
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.Url.Intercept(interceptors...)
+	c.Service.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
 }
 
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
-	case *URLMutation:
-		return c.Url.mutate(ctx, m)
+	case *ServiceMutation:
+		return c.Service.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	default:
@@ -199,92 +199,92 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	}
 }
 
-// URLClient is a client for the Url schema.
-type URLClient struct {
+// ServiceClient is a client for the Service schema.
+type ServiceClient struct {
 	config
 }
 
-// NewURLClient returns a client for the Url from the given config.
-func NewURLClient(c config) *URLClient {
-	return &URLClient{config: c}
+// NewServiceClient returns a client for the Service from the given config.
+func NewServiceClient(c config) *ServiceClient {
+	return &ServiceClient{config: c}
 }
 
 // Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `url.Hooks(f(g(h())))`.
-func (c *URLClient) Use(hooks ...Hook) {
-	c.hooks.Url = append(c.hooks.Url, hooks...)
+// A call to `Use(f, g, h)` equals to `service.Hooks(f(g(h())))`.
+func (c *ServiceClient) Use(hooks ...Hook) {
+	c.hooks.Service = append(c.hooks.Service, hooks...)
 }
 
 // Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `url.Intercept(f(g(h())))`.
-func (c *URLClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Url = append(c.inters.Url, interceptors...)
+// A call to `Intercept(f, g, h)` equals to `service.Intercept(f(g(h())))`.
+func (c *ServiceClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Service = append(c.inters.Service, interceptors...)
 }
 
-// Create returns a builder for creating a Url entity.
-func (c *URLClient) Create() *URLCreate {
-	mutation := newURLMutation(c.config, OpCreate)
-	return &URLCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Create returns a builder for creating a Service entity.
+func (c *ServiceClient) Create() *ServiceCreate {
+	mutation := newServiceMutation(c.config, OpCreate)
+	return &ServiceCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// CreateBulk returns a builder for creating a bulk of Url entities.
-func (c *URLClient) CreateBulk(builders ...*URLCreate) *URLCreateBulk {
-	return &URLCreateBulk{config: c.config, builders: builders}
+// CreateBulk returns a builder for creating a bulk of Service entities.
+func (c *ServiceClient) CreateBulk(builders ...*ServiceCreate) *ServiceCreateBulk {
+	return &ServiceCreateBulk{config: c.config, builders: builders}
 }
 
-// Update returns an update builder for Url.
-func (c *URLClient) Update() *URLUpdate {
-	mutation := newURLMutation(c.config, OpUpdate)
-	return &URLUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Update returns an update builder for Service.
+func (c *ServiceClient) Update() *ServiceUpdate {
+	mutation := newServiceMutation(c.config, OpUpdate)
+	return &ServiceUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *URLClient) UpdateOne(u *Url) *URLUpdateOne {
-	mutation := newURLMutation(c.config, OpUpdateOne, withUrl(u))
-	return &URLUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *ServiceClient) UpdateOne(s *Service) *ServiceUpdateOne {
+	mutation := newServiceMutation(c.config, OpUpdateOne, withService(s))
+	return &ServiceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *URLClient) UpdateOneID(id uuid.UUID) *URLUpdateOne {
-	mutation := newURLMutation(c.config, OpUpdateOne, withUrlID(id))
-	return &URLUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+func (c *ServiceClient) UpdateOneID(id uuid.UUID) *ServiceUpdateOne {
+	mutation := newServiceMutation(c.config, OpUpdateOne, withServiceID(id))
+	return &ServiceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
-// Delete returns a delete builder for Url.
-func (c *URLClient) Delete() *URLDelete {
-	mutation := newURLMutation(c.config, OpDelete)
-	return &URLDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+// Delete returns a delete builder for Service.
+func (c *ServiceClient) Delete() *ServiceDelete {
+	mutation := newServiceMutation(c.config, OpDelete)
+	return &ServiceDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *URLClient) DeleteOne(u *Url) *URLDeleteOne {
-	return c.DeleteOneID(u.ID)
+func (c *ServiceClient) DeleteOne(s *Service) *ServiceDeleteOne {
+	return c.DeleteOneID(s.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *URLClient) DeleteOneID(id uuid.UUID) *URLDeleteOne {
-	builder := c.Delete().Where(url.ID(id))
+func (c *ServiceClient) DeleteOneID(id uuid.UUID) *ServiceDeleteOne {
+	builder := c.Delete().Where(service.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
-	return &URLDeleteOne{builder}
+	return &ServiceDeleteOne{builder}
 }
 
-// Query returns a query builder for Url.
-func (c *URLClient) Query() *URLQuery {
-	return &URLQuery{
+// Query returns a query builder for Service.
+func (c *ServiceClient) Query() *ServiceQuery {
+	return &ServiceQuery{
 		config: c.config,
-		ctx:    &QueryContext{Type: TypeURL},
+		ctx:    &QueryContext{Type: TypeService},
 		inters: c.Interceptors(),
 	}
 }
 
-// Get returns a Url entity by its id.
-func (c *URLClient) Get(ctx context.Context, id uuid.UUID) (*Url, error) {
-	return c.Query().Where(url.ID(id)).Only(ctx)
+// Get returns a Service entity by its id.
+func (c *ServiceClient) Get(ctx context.Context, id uuid.UUID) (*Service, error) {
+	return c.Query().Where(service.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *URLClient) GetX(ctx context.Context, id uuid.UUID) *Url {
+func (c *ServiceClient) GetX(ctx context.Context, id uuid.UUID) *Service {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -292,44 +292,44 @@ func (c *URLClient) GetX(ctx context.Context, id uuid.UUID) *Url {
 	return obj
 }
 
-// QueryUserID queries the user_id edge of a Url.
-func (c *URLClient) QueryUserID(u *Url) *UserQuery {
+// QueryUserID queries the user_id edge of a Service.
+func (c *ServiceClient) QueryUserID(s *Service) *UserQuery {
 	query := (&UserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
+		id := s.ID
 		step := sqlgraph.NewStep(
-			sqlgraph.From(url.Table, url.FieldID, id),
+			sqlgraph.From(service.Table, service.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, url.UserIDTable, url.UserIDColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, service.UserIDTable, service.UserIDColumn),
 		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // Hooks returns the client hooks.
-func (c *URLClient) Hooks() []Hook {
-	return c.hooks.Url
+func (c *ServiceClient) Hooks() []Hook {
+	return c.hooks.Service
 }
 
 // Interceptors returns the client interceptors.
-func (c *URLClient) Interceptors() []Interceptor {
-	return c.inters.Url
+func (c *ServiceClient) Interceptors() []Interceptor {
+	return c.inters.Service
 }
 
-func (c *URLClient) mutate(ctx context.Context, m *URLMutation) (Value, error) {
+func (c *ServiceClient) mutate(ctx context.Context, m *ServiceMutation) (Value, error) {
 	switch m.Op() {
 	case OpCreate:
-		return (&URLCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ServiceCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdate:
-		return (&URLUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ServiceUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpUpdateOne:
-		return (&URLUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+		return (&ServiceUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
 	case OpDelete, OpDeleteOne:
-		return (&URLDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+		return (&ServiceDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("ent: unknown Url mutation op: %q", m.Op())
+		return nil, fmt.Errorf("ent: unknown Service mutation op: %q", m.Op())
 	}
 }
 
@@ -427,13 +427,13 @@ func (c *UserClient) GetX(ctx context.Context, id uuid.UUID) *User {
 }
 
 // QueryUUID queries the uuid edge of a User.
-func (c *UserClient) QueryUUID(u *User) *URLQuery {
-	query := (&URLClient{config: c.config}).Query()
+func (c *UserClient) QueryUUID(u *User) *ServiceQuery {
+	query := (&ServiceClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := u.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
-			sqlgraph.To(url.Table, url.FieldID),
+			sqlgraph.To(service.Table, service.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.UUIDTable, user.UUIDColumn),
 		)
 		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
@@ -470,9 +470,9 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Url, User []ent.Hook
+		Service, User []ent.Hook
 	}
 	inters struct {
-		Url, User []ent.Interceptor
+		Service, User []ent.Interceptor
 	}
 )

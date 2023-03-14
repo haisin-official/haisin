@@ -13,7 +13,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/haisin-official/haisin/ent/predicate"
-	"github.com/haisin-official/haisin/ent/url"
+	"github.com/haisin-official/haisin/ent/service"
 	"github.com/haisin-official/haisin/ent/user"
 )
 
@@ -26,39 +26,39 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeURL  = "Url"
-	TypeUser = "User"
+	TypeService = "Service"
+	TypeUser    = "User"
 )
 
-// URLMutation represents an operation that mutates the Url nodes in the graph.
-type URLMutation struct {
+// ServiceMutation represents an operation that mutates the Service nodes in the graph.
+type ServiceMutation struct {
 	config
 	op             Op
 	typ            string
 	id             *uuid.UUID
 	create_time    *time.Time
 	update_time    *time.Time
-	service        *url.Service
+	service        *service.Service
 	url            *string
 	clearedFields  map[string]struct{}
 	user_id        *uuid.UUID
 	cleareduser_id bool
 	done           bool
-	oldValue       func(context.Context) (*Url, error)
-	predicates     []predicate.Url
+	oldValue       func(context.Context) (*Service, error)
+	predicates     []predicate.Service
 }
 
-var _ ent.Mutation = (*URLMutation)(nil)
+var _ ent.Mutation = (*ServiceMutation)(nil)
 
-// urlOption allows management of the mutation configuration using functional options.
-type urlOption func(*URLMutation)
+// serviceOption allows management of the mutation configuration using functional options.
+type serviceOption func(*ServiceMutation)
 
-// newURLMutation creates new mutation for the Url entity.
-func newURLMutation(c config, op Op, opts ...urlOption) *URLMutation {
-	m := &URLMutation{
+// newServiceMutation creates new mutation for the Service entity.
+func newServiceMutation(c config, op Op, opts ...serviceOption) *ServiceMutation {
+	m := &ServiceMutation{
 		config:        c,
 		op:            op,
-		typ:           TypeURL,
+		typ:           TypeService,
 		clearedFields: make(map[string]struct{}),
 	}
 	for _, opt := range opts {
@@ -67,20 +67,20 @@ func newURLMutation(c config, op Op, opts ...urlOption) *URLMutation {
 	return m
 }
 
-// withUrlID sets the ID field of the mutation.
-func withUrlID(id uuid.UUID) urlOption {
-	return func(m *URLMutation) {
+// withServiceID sets the ID field of the mutation.
+func withServiceID(id uuid.UUID) serviceOption {
+	return func(m *ServiceMutation) {
 		var (
 			err   error
 			once  sync.Once
-			value *Url
+			value *Service
 		)
-		m.oldValue = func(ctx context.Context) (*Url, error) {
+		m.oldValue = func(ctx context.Context) (*Service, error) {
 			once.Do(func() {
 				if m.done {
 					err = errors.New("querying old values post mutation is not allowed")
 				} else {
-					value, err = m.Client().Url.Get(ctx, id)
+					value, err = m.Client().Service.Get(ctx, id)
 				}
 			})
 			return value, err
@@ -89,10 +89,10 @@ func withUrlID(id uuid.UUID) urlOption {
 	}
 }
 
-// withUrl sets the old Url of the mutation.
-func withUrl(node *Url) urlOption {
-	return func(m *URLMutation) {
-		m.oldValue = func(context.Context) (*Url, error) {
+// withService sets the old Service of the mutation.
+func withService(node *Service) serviceOption {
+	return func(m *ServiceMutation) {
+		m.oldValue = func(context.Context) (*Service, error) {
 			return node, nil
 		}
 		m.id = &node.ID
@@ -101,7 +101,7 @@ func withUrl(node *Url) urlOption {
 
 // Client returns a new `ent.Client` from the mutation. If the mutation was
 // executed in a transaction (ent.Tx), a transactional client is returned.
-func (m URLMutation) Client() *Client {
+func (m ServiceMutation) Client() *Client {
 	client := &Client{config: m.config}
 	client.init()
 	return client
@@ -109,7 +109,7 @@ func (m URLMutation) Client() *Client {
 
 // Tx returns an `ent.Tx` for mutations that were executed in transactions;
 // it returns an error otherwise.
-func (m URLMutation) Tx() (*Tx, error) {
+func (m ServiceMutation) Tx() (*Tx, error) {
 	if _, ok := m.driver.(*txDriver); !ok {
 		return nil, errors.New("ent: mutation is not running in a transaction")
 	}
@@ -119,14 +119,14 @@ func (m URLMutation) Tx() (*Tx, error) {
 }
 
 // SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of Url entities.
-func (m *URLMutation) SetID(id uuid.UUID) {
+// operation is only accepted on creation of Service entities.
+func (m *ServiceMutation) SetID(id uuid.UUID) {
 	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *URLMutation) ID() (id uuid.UUID, exists bool) {
+func (m *ServiceMutation) ID() (id uuid.UUID, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -137,7 +137,7 @@ func (m *URLMutation) ID() (id uuid.UUID, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *URLMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
+func (m *ServiceMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
@@ -146,19 +146,19 @@ func (m *URLMutation) IDs(ctx context.Context) ([]uuid.UUID, error) {
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().Url.Query().Where(m.predicates...).IDs(ctx)
+		return m.Client().Service.Query().Where(m.predicates...).IDs(ctx)
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
 }
 
 // SetCreateTime sets the "create_time" field.
-func (m *URLMutation) SetCreateTime(t time.Time) {
+func (m *ServiceMutation) SetCreateTime(t time.Time) {
 	m.create_time = &t
 }
 
 // CreateTime returns the value of the "create_time" field in the mutation.
-func (m *URLMutation) CreateTime() (r time.Time, exists bool) {
+func (m *ServiceMutation) CreateTime() (r time.Time, exists bool) {
 	v := m.create_time
 	if v == nil {
 		return
@@ -166,10 +166,10 @@ func (m *URLMutation) CreateTime() (r time.Time, exists bool) {
 	return *v, true
 }
 
-// OldCreateTime returns the old "create_time" field's value of the Url entity.
-// If the Url object wasn't provided to the builder, the object is fetched from the database.
+// OldCreateTime returns the old "create_time" field's value of the Service entity.
+// If the Service object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *URLMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
+func (m *ServiceMutation) OldCreateTime(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldCreateTime is only allowed on UpdateOne operations")
 	}
@@ -184,17 +184,17 @@ func (m *URLMutation) OldCreateTime(ctx context.Context) (v time.Time, err error
 }
 
 // ResetCreateTime resets all changes to the "create_time" field.
-func (m *URLMutation) ResetCreateTime() {
+func (m *ServiceMutation) ResetCreateTime() {
 	m.create_time = nil
 }
 
 // SetUpdateTime sets the "update_time" field.
-func (m *URLMutation) SetUpdateTime(t time.Time) {
+func (m *ServiceMutation) SetUpdateTime(t time.Time) {
 	m.update_time = &t
 }
 
 // UpdateTime returns the value of the "update_time" field in the mutation.
-func (m *URLMutation) UpdateTime() (r time.Time, exists bool) {
+func (m *ServiceMutation) UpdateTime() (r time.Time, exists bool) {
 	v := m.update_time
 	if v == nil {
 		return
@@ -202,10 +202,10 @@ func (m *URLMutation) UpdateTime() (r time.Time, exists bool) {
 	return *v, true
 }
 
-// OldUpdateTime returns the old "update_time" field's value of the Url entity.
-// If the Url object wasn't provided to the builder, the object is fetched from the database.
+// OldUpdateTime returns the old "update_time" field's value of the Service entity.
+// If the Service object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *URLMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
+func (m *ServiceMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldUpdateTime is only allowed on UpdateOne operations")
 	}
@@ -220,17 +220,17 @@ func (m *URLMutation) OldUpdateTime(ctx context.Context) (v time.Time, err error
 }
 
 // ResetUpdateTime resets all changes to the "update_time" field.
-func (m *URLMutation) ResetUpdateTime() {
+func (m *ServiceMutation) ResetUpdateTime() {
 	m.update_time = nil
 }
 
 // SetService sets the "service" field.
-func (m *URLMutation) SetService(u url.Service) {
-	m.service = &u
+func (m *ServiceMutation) SetService(s service.Service) {
+	m.service = &s
 }
 
 // Service returns the value of the "service" field in the mutation.
-func (m *URLMutation) Service() (r url.Service, exists bool) {
+func (m *ServiceMutation) Service() (r service.Service, exists bool) {
 	v := m.service
 	if v == nil {
 		return
@@ -238,10 +238,10 @@ func (m *URLMutation) Service() (r url.Service, exists bool) {
 	return *v, true
 }
 
-// OldService returns the old "service" field's value of the Url entity.
-// If the Url object wasn't provided to the builder, the object is fetched from the database.
+// OldService returns the old "service" field's value of the Service entity.
+// If the Service object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *URLMutation) OldService(ctx context.Context) (v url.Service, err error) {
+func (m *ServiceMutation) OldService(ctx context.Context) (v service.Service, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldService is only allowed on UpdateOne operations")
 	}
@@ -256,17 +256,17 @@ func (m *URLMutation) OldService(ctx context.Context) (v url.Service, err error)
 }
 
 // ResetService resets all changes to the "service" field.
-func (m *URLMutation) ResetService() {
+func (m *ServiceMutation) ResetService() {
 	m.service = nil
 }
 
 // SetURL sets the "url" field.
-func (m *URLMutation) SetURL(s string) {
+func (m *ServiceMutation) SetURL(s string) {
 	m.url = &s
 }
 
 // URL returns the value of the "url" field in the mutation.
-func (m *URLMutation) URL() (r string, exists bool) {
+func (m *ServiceMutation) URL() (r string, exists bool) {
 	v := m.url
 	if v == nil {
 		return
@@ -274,10 +274,10 @@ func (m *URLMutation) URL() (r string, exists bool) {
 	return *v, true
 }
 
-// OldURL returns the old "url" field's value of the Url entity.
-// If the Url object wasn't provided to the builder, the object is fetched from the database.
+// OldURL returns the old "url" field's value of the Service entity.
+// If the Service object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *URLMutation) OldURL(ctx context.Context) (v string, err error) {
+func (m *ServiceMutation) OldURL(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldURL is only allowed on UpdateOne operations")
 	}
@@ -292,27 +292,27 @@ func (m *URLMutation) OldURL(ctx context.Context) (v string, err error) {
 }
 
 // ResetURL resets all changes to the "url" field.
-func (m *URLMutation) ResetURL() {
+func (m *ServiceMutation) ResetURL() {
 	m.url = nil
 }
 
 // SetUserIDID sets the "user_id" edge to the User entity by id.
-func (m *URLMutation) SetUserIDID(id uuid.UUID) {
+func (m *ServiceMutation) SetUserIDID(id uuid.UUID) {
 	m.user_id = &id
 }
 
 // ClearUserID clears the "user_id" edge to the User entity.
-func (m *URLMutation) ClearUserID() {
+func (m *ServiceMutation) ClearUserID() {
 	m.cleareduser_id = true
 }
 
 // UserIDCleared reports if the "user_id" edge to the User entity was cleared.
-func (m *URLMutation) UserIDCleared() bool {
+func (m *ServiceMutation) UserIDCleared() bool {
 	return m.cleareduser_id
 }
 
 // UserIDID returns the "user_id" edge ID in the mutation.
-func (m *URLMutation) UserIDID() (id uuid.UUID, exists bool) {
+func (m *ServiceMutation) UserIDID() (id uuid.UUID, exists bool) {
 	if m.user_id != nil {
 		return *m.user_id, true
 	}
@@ -322,7 +322,7 @@ func (m *URLMutation) UserIDID() (id uuid.UUID, exists bool) {
 // UserIDIDs returns the "user_id" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
 // UserIDID instead. It exists only for internal usage by the builders.
-func (m *URLMutation) UserIDIDs() (ids []uuid.UUID) {
+func (m *ServiceMutation) UserIDIDs() (ids []uuid.UUID) {
 	if id := m.user_id; id != nil {
 		ids = append(ids, *id)
 	}
@@ -330,20 +330,20 @@ func (m *URLMutation) UserIDIDs() (ids []uuid.UUID) {
 }
 
 // ResetUserID resets all changes to the "user_id" edge.
-func (m *URLMutation) ResetUserID() {
+func (m *ServiceMutation) ResetUserID() {
 	m.user_id = nil
 	m.cleareduser_id = false
 }
 
-// Where appends a list predicates to the URLMutation builder.
-func (m *URLMutation) Where(ps ...predicate.Url) {
+// Where appends a list predicates to the ServiceMutation builder.
+func (m *ServiceMutation) Where(ps ...predicate.Service) {
 	m.predicates = append(m.predicates, ps...)
 }
 
-// WhereP appends storage-level predicates to the URLMutation builder. Using this method,
+// WhereP appends storage-level predicates to the ServiceMutation builder. Using this method,
 // users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *URLMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.Url, len(ps))
+func (m *ServiceMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Service, len(ps))
 	for i := range ps {
 		p[i] = ps[i]
 	}
@@ -351,36 +351,36 @@ func (m *URLMutation) WhereP(ps ...func(*sql.Selector)) {
 }
 
 // Op returns the operation name.
-func (m *URLMutation) Op() Op {
+func (m *ServiceMutation) Op() Op {
 	return m.op
 }
 
 // SetOp allows setting the mutation operation.
-func (m *URLMutation) SetOp(op Op) {
+func (m *ServiceMutation) SetOp(op Op) {
 	m.op = op
 }
 
-// Type returns the node type of this mutation (Url).
-func (m *URLMutation) Type() string {
+// Type returns the node type of this mutation (Service).
+func (m *ServiceMutation) Type() string {
 	return m.typ
 }
 
 // Fields returns all fields that were changed during this mutation. Note that in
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
-func (m *URLMutation) Fields() []string {
+func (m *ServiceMutation) Fields() []string {
 	fields := make([]string, 0, 4)
 	if m.create_time != nil {
-		fields = append(fields, url.FieldCreateTime)
+		fields = append(fields, service.FieldCreateTime)
 	}
 	if m.update_time != nil {
-		fields = append(fields, url.FieldUpdateTime)
+		fields = append(fields, service.FieldUpdateTime)
 	}
 	if m.service != nil {
-		fields = append(fields, url.FieldService)
+		fields = append(fields, service.FieldService)
 	}
 	if m.url != nil {
-		fields = append(fields, url.FieldURL)
+		fields = append(fields, service.FieldURL)
 	}
 	return fields
 }
@@ -388,15 +388,15 @@ func (m *URLMutation) Fields() []string {
 // Field returns the value of a field with the given name. The second boolean
 // return value indicates that this field was not set, or was not defined in the
 // schema.
-func (m *URLMutation) Field(name string) (ent.Value, bool) {
+func (m *ServiceMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case url.FieldCreateTime:
+	case service.FieldCreateTime:
 		return m.CreateTime()
-	case url.FieldUpdateTime:
+	case service.FieldUpdateTime:
 		return m.UpdateTime()
-	case url.FieldService:
+	case service.FieldService:
 		return m.Service()
-	case url.FieldURL:
+	case service.FieldURL:
 		return m.URL()
 	}
 	return nil, false
@@ -405,47 +405,47 @@ func (m *URLMutation) Field(name string) (ent.Value, bool) {
 // OldField returns the old value of the field from the database. An error is
 // returned if the mutation operation is not UpdateOne, or the query to the
 // database failed.
-func (m *URLMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+func (m *ServiceMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case url.FieldCreateTime:
+	case service.FieldCreateTime:
 		return m.OldCreateTime(ctx)
-	case url.FieldUpdateTime:
+	case service.FieldUpdateTime:
 		return m.OldUpdateTime(ctx)
-	case url.FieldService:
+	case service.FieldService:
 		return m.OldService(ctx)
-	case url.FieldURL:
+	case service.FieldURL:
 		return m.OldURL(ctx)
 	}
-	return nil, fmt.Errorf("unknown Url field %s", name)
+	return nil, fmt.Errorf("unknown Service field %s", name)
 }
 
 // SetField sets the value of a field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *URLMutation) SetField(name string, value ent.Value) error {
+func (m *ServiceMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case url.FieldCreateTime:
+	case service.FieldCreateTime:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCreateTime(v)
 		return nil
-	case url.FieldUpdateTime:
+	case service.FieldUpdateTime:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetUpdateTime(v)
 		return nil
-	case url.FieldService:
-		v, ok := value.(url.Service)
+	case service.FieldService:
+		v, ok := value.(service.Service)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetService(v)
 		return nil
-	case url.FieldURL:
+	case service.FieldURL:
 		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
@@ -453,84 +453,84 @@ func (m *URLMutation) SetField(name string, value ent.Value) error {
 		m.SetURL(v)
 		return nil
 	}
-	return fmt.Errorf("unknown Url field %s", name)
+	return fmt.Errorf("unknown Service field %s", name)
 }
 
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
-func (m *URLMutation) AddedFields() []string {
+func (m *ServiceMutation) AddedFields() []string {
 	return nil
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
-func (m *URLMutation) AddedField(name string) (ent.Value, bool) {
+func (m *ServiceMutation) AddedField(name string) (ent.Value, bool) {
 	return nil, false
 }
 
 // AddField adds the value to the field with the given name. It returns an error if
 // the field is not defined in the schema, or if the type mismatched the field
 // type.
-func (m *URLMutation) AddField(name string, value ent.Value) error {
+func (m *ServiceMutation) AddField(name string, value ent.Value) error {
 	switch name {
 	}
-	return fmt.Errorf("unknown Url numeric field %s", name)
+	return fmt.Errorf("unknown Service numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
-func (m *URLMutation) ClearedFields() []string {
+func (m *ServiceMutation) ClearedFields() []string {
 	return nil
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
 // cleared in this mutation.
-func (m *URLMutation) FieldCleared(name string) bool {
+func (m *ServiceMutation) FieldCleared(name string) bool {
 	_, ok := m.clearedFields[name]
 	return ok
 }
 
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
-func (m *URLMutation) ClearField(name string) error {
-	return fmt.Errorf("unknown Url nullable field %s", name)
+func (m *ServiceMutation) ClearField(name string) error {
+	return fmt.Errorf("unknown Service nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
 // It returns an error if the field is not defined in the schema.
-func (m *URLMutation) ResetField(name string) error {
+func (m *ServiceMutation) ResetField(name string) error {
 	switch name {
-	case url.FieldCreateTime:
+	case service.FieldCreateTime:
 		m.ResetCreateTime()
 		return nil
-	case url.FieldUpdateTime:
+	case service.FieldUpdateTime:
 		m.ResetUpdateTime()
 		return nil
-	case url.FieldService:
+	case service.FieldService:
 		m.ResetService()
 		return nil
-	case url.FieldURL:
+	case service.FieldURL:
 		m.ResetURL()
 		return nil
 	}
-	return fmt.Errorf("unknown Url field %s", name)
+	return fmt.Errorf("unknown Service field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
-func (m *URLMutation) AddedEdges() []string {
+func (m *ServiceMutation) AddedEdges() []string {
 	edges := make([]string, 0, 1)
 	if m.user_id != nil {
-		edges = append(edges, url.EdgeUserID)
+		edges = append(edges, service.EdgeUserID)
 	}
 	return edges
 }
 
 // AddedIDs returns all IDs (to other nodes) that were added for the given edge
 // name in this mutation.
-func (m *URLMutation) AddedIDs(name string) []ent.Value {
+func (m *ServiceMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case url.EdgeUserID:
+	case service.EdgeUserID:
 		if id := m.user_id; id != nil {
 			return []ent.Value{*id}
 		}
@@ -539,31 +539,31 @@ func (m *URLMutation) AddedIDs(name string) []ent.Value {
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
-func (m *URLMutation) RemovedEdges() []string {
+func (m *ServiceMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 1)
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
-func (m *URLMutation) RemovedIDs(name string) []ent.Value {
+func (m *ServiceMutation) RemovedIDs(name string) []ent.Value {
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *URLMutation) ClearedEdges() []string {
+func (m *ServiceMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 1)
 	if m.cleareduser_id {
-		edges = append(edges, url.EdgeUserID)
+		edges = append(edges, service.EdgeUserID)
 	}
 	return edges
 }
 
 // EdgeCleared returns a boolean which indicates if the edge with the given name
 // was cleared in this mutation.
-func (m *URLMutation) EdgeCleared(name string) bool {
+func (m *ServiceMutation) EdgeCleared(name string) bool {
 	switch name {
-	case url.EdgeUserID:
+	case service.EdgeUserID:
 		return m.cleareduser_id
 	}
 	return false
@@ -571,24 +571,24 @@ func (m *URLMutation) EdgeCleared(name string) bool {
 
 // ClearEdge clears the value of the edge with the given name. It returns an error
 // if that edge is not defined in the schema.
-func (m *URLMutation) ClearEdge(name string) error {
+func (m *ServiceMutation) ClearEdge(name string) error {
 	switch name {
-	case url.EdgeUserID:
+	case service.EdgeUserID:
 		m.ClearUserID()
 		return nil
 	}
-	return fmt.Errorf("unknown Url unique edge %s", name)
+	return fmt.Errorf("unknown Service unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
 // It returns an error if the edge is not defined in the schema.
-func (m *URLMutation) ResetEdge(name string) error {
+func (m *ServiceMutation) ResetEdge(name string) error {
 	switch name {
-	case url.EdgeUserID:
+	case service.EdgeUserID:
 		m.ResetUserID()
 		return nil
 	}
-	return fmt.Errorf("unknown Url edge %s", name)
+	return fmt.Errorf("unknown Service edge %s", name)
 }
 
 // UserMutation represents an operation that mutates the User nodes in the graph.
@@ -908,7 +908,7 @@ func (m *UserMutation) ResetGa() {
 	delete(m.clearedFields, user.FieldGa)
 }
 
-// AddUUIDIDs adds the "uuid" edge to the Url entity by ids.
+// AddUUIDIDs adds the "uuid" edge to the Service entity by ids.
 func (m *UserMutation) AddUUIDIDs(ids ...uuid.UUID) {
 	if m.uuid == nil {
 		m.uuid = make(map[uuid.UUID]struct{})
@@ -918,17 +918,17 @@ func (m *UserMutation) AddUUIDIDs(ids ...uuid.UUID) {
 	}
 }
 
-// ClearUUID clears the "uuid" edge to the Url entity.
+// ClearUUID clears the "uuid" edge to the Service entity.
 func (m *UserMutation) ClearUUID() {
 	m.cleareduuid = true
 }
 
-// UUIDCleared reports if the "uuid" edge to the Url entity was cleared.
+// UUIDCleared reports if the "uuid" edge to the Service entity was cleared.
 func (m *UserMutation) UUIDCleared() bool {
 	return m.cleareduuid
 }
 
-// RemoveUUIDIDs removes the "uuid" edge to the Url entity by IDs.
+// RemoveUUIDIDs removes the "uuid" edge to the Service entity by IDs.
 func (m *UserMutation) RemoveUUIDIDs(ids ...uuid.UUID) {
 	if m.removeduuid == nil {
 		m.removeduuid = make(map[uuid.UUID]struct{})
@@ -939,7 +939,7 @@ func (m *UserMutation) RemoveUUIDIDs(ids ...uuid.UUID) {
 	}
 }
 
-// RemovedUUID returns the removed IDs of the "uuid" edge to the Url entity.
+// RemovedUUID returns the removed IDs of the "uuid" edge to the Service entity.
 func (m *UserMutation) RemovedUUIDIDs() (ids []uuid.UUID) {
 	for id := range m.removeduuid {
 		ids = append(ids, id)

@@ -8,7 +8,7 @@ type SlugGetRequest struct {
 
 type SlugPostRequest struct {
 	UserID uuid.UUID
-	Slug   string // new slug
+	Slug   string
 }
 
 type SlugPostRequestBody struct {

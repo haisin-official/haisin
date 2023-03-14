@@ -378,7 +378,7 @@ func HasUUID() predicate.User {
 }
 
 // HasUUIDWith applies the HasEdge predicate on the "uuid" edge with a given conditions (other predicates).
-func HasUUIDWith(preds ...predicate.Url) predicate.User {
+func HasUUIDWith(preds ...predicate.Service) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),

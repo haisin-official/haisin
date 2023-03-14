@@ -26,10 +26,10 @@ const (
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// UUIDTable is the table that holds the uuid relation/edge.
-	UUIDTable = "urls"
-	// UUIDInverseTable is the table name for the Url entity.
-	// It exists in this package in order to avoid circular dependency with the "url" package.
-	UUIDInverseTable = "urls"
+	UUIDTable = "services"
+	// UUIDInverseTable is the table name for the Service entity.
+	// It exists in this package in order to avoid circular dependency with the "service" package.
+	UUIDInverseTable = "services"
 	// UUIDColumn is the table column denoting the uuid relation/edge.
 	UUIDColumn = "user_uuid"
 )
