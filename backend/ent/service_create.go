@@ -8,8 +8,6 @@ import (
 	"fmt"
 	"time"
 
-	"entgo.io/ent/dialect"
-	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
@@ -22,7 +20,6 @@ type ServiceCreate struct {
 	config
 	mutation *ServiceMutation
 	hooks    []Hook
-	conflict []sql.ConflictOption
 }
 
 // SetCreateTime sets the "create_time" field.
@@ -185,7 +182,6 @@ func (sc *ServiceCreate) createSpec() (*Service, *sqlgraph.CreateSpec) {
 		_node = &Service{config: sc.config}
 		_spec = sqlgraph.NewCreateSpec(service.Table, sqlgraph.NewFieldSpec(service.FieldID, field.TypeUUID))
 	)
-	_spec.OnConflict = sc.conflict
 	if id, ok := sc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = &id
@@ -229,227 +225,10 @@ func (sc *ServiceCreate) createSpec() (*Service, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
-// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
-// of the `INSERT` statement. For example:
-//
-//	client.Service.Create().
-//		SetCreateTime(v).
-//		OnConflict(
-//			// Update the row with the new values
-//			// the was proposed for insertion.
-//			sql.ResolveWithNewValues(),
-//		).
-//		// Override some of the fields with custom
-//		// update values.
-//		Update(func(u *ent.ServiceUpsert) {
-//			SetCreateTime(v+v).
-//		}).
-//		Exec(ctx)
-func (sc *ServiceCreate) OnConflict(opts ...sql.ConflictOption) *ServiceUpsertOne {
-	sc.conflict = opts
-	return &ServiceUpsertOne{
-		create: sc,
-	}
-}
-
-// OnConflictColumns calls `OnConflict` and configures the columns
-// as conflict target. Using this option is equivalent to using:
-//
-//	client.Service.Create().
-//		OnConflict(sql.ConflictColumns(columns...)).
-//		Exec(ctx)
-func (sc *ServiceCreate) OnConflictColumns(columns ...string) *ServiceUpsertOne {
-	sc.conflict = append(sc.conflict, sql.ConflictColumns(columns...))
-	return &ServiceUpsertOne{
-		create: sc,
-	}
-}
-
-type (
-	// ServiceUpsertOne is the builder for "upsert"-ing
-	//  one Service node.
-	ServiceUpsertOne struct {
-		create *ServiceCreate
-	}
-
-	// ServiceUpsert is the "OnConflict" setter.
-	ServiceUpsert struct {
-		*sql.UpdateSet
-	}
-)
-
-// SetUpdateTime sets the "update_time" field.
-func (u *ServiceUpsert) SetUpdateTime(v time.Time) *ServiceUpsert {
-	u.Set(service.FieldUpdateTime, v)
-	return u
-}
-
-// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
-func (u *ServiceUpsert) UpdateUpdateTime() *ServiceUpsert {
-	u.SetExcluded(service.FieldUpdateTime)
-	return u
-}
-
-// SetService sets the "service" field.
-func (u *ServiceUpsert) SetService(v service.Service) *ServiceUpsert {
-	u.Set(service.FieldService, v)
-	return u
-}
-
-// UpdateService sets the "service" field to the value that was provided on create.
-func (u *ServiceUpsert) UpdateService() *ServiceUpsert {
-	u.SetExcluded(service.FieldService)
-	return u
-}
-
-// SetURL sets the "url" field.
-func (u *ServiceUpsert) SetURL(v string) *ServiceUpsert {
-	u.Set(service.FieldURL, v)
-	return u
-}
-
-// UpdateURL sets the "url" field to the value that was provided on create.
-func (u *ServiceUpsert) UpdateURL() *ServiceUpsert {
-	u.SetExcluded(service.FieldURL)
-	return u
-}
-
-// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
-// Using this option is equivalent to using:
-//
-//	client.Service.Create().
-//		OnConflict(
-//			sql.ResolveWithNewValues(),
-//			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(service.FieldID)
-//			}),
-//		).
-//		Exec(ctx)
-func (u *ServiceUpsertOne) UpdateNewValues() *ServiceUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
-		if _, exists := u.create.mutation.ID(); exists {
-			s.SetIgnore(service.FieldID)
-		}
-		if _, exists := u.create.mutation.CreateTime(); exists {
-			s.SetIgnore(service.FieldCreateTime)
-		}
-	}))
-	return u
-}
-
-// Ignore sets each column to itself in case of conflict.
-// Using this option is equivalent to using:
-//
-//	client.Service.Create().
-//	    OnConflict(sql.ResolveWithIgnore()).
-//	    Exec(ctx)
-func (u *ServiceUpsertOne) Ignore() *ServiceUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
-	return u
-}
-
-// DoNothing configures the conflict_action to `DO NOTHING`.
-// Supported only by SQLite and PostgreSQL.
-func (u *ServiceUpsertOne) DoNothing() *ServiceUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.DoNothing())
-	return u
-}
-
-// Update allows overriding fields `UPDATE` values. See the ServiceCreate.OnConflict
-// documentation for more info.
-func (u *ServiceUpsertOne) Update(set func(*ServiceUpsert)) *ServiceUpsertOne {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&ServiceUpsert{UpdateSet: update})
-	}))
-	return u
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (u *ServiceUpsertOne) SetUpdateTime(v time.Time) *ServiceUpsertOne {
-	return u.Update(func(s *ServiceUpsert) {
-		s.SetUpdateTime(v)
-	})
-}
-
-// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
-func (u *ServiceUpsertOne) UpdateUpdateTime() *ServiceUpsertOne {
-	return u.Update(func(s *ServiceUpsert) {
-		s.UpdateUpdateTime()
-	})
-}
-
-// SetService sets the "service" field.
-func (u *ServiceUpsertOne) SetService(v service.Service) *ServiceUpsertOne {
-	return u.Update(func(s *ServiceUpsert) {
-		s.SetService(v)
-	})
-}
-
-// UpdateService sets the "service" field to the value that was provided on create.
-func (u *ServiceUpsertOne) UpdateService() *ServiceUpsertOne {
-	return u.Update(func(s *ServiceUpsert) {
-		s.UpdateService()
-	})
-}
-
-// SetURL sets the "url" field.
-func (u *ServiceUpsertOne) SetURL(v string) *ServiceUpsertOne {
-	return u.Update(func(s *ServiceUpsert) {
-		s.SetURL(v)
-	})
-}
-
-// UpdateURL sets the "url" field to the value that was provided on create.
-func (u *ServiceUpsertOne) UpdateURL() *ServiceUpsertOne {
-	return u.Update(func(s *ServiceUpsert) {
-		s.UpdateURL()
-	})
-}
-
-// Exec executes the query.
-func (u *ServiceUpsertOne) Exec(ctx context.Context) error {
-	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for ServiceCreate.OnConflict")
-	}
-	return u.create.Exec(ctx)
-}
-
-// ExecX is like Exec, but panics if an error occurs.
-func (u *ServiceUpsertOne) ExecX(ctx context.Context) {
-	if err := u.create.Exec(ctx); err != nil {
-		panic(err)
-	}
-}
-
-// Exec executes the UPSERT query and returns the inserted/updated ID.
-func (u *ServiceUpsertOne) ID(ctx context.Context) (id uuid.UUID, err error) {
-	if u.create.driver.Dialect() == dialect.MySQL {
-		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
-		// fields from the database since MySQL does not support the RETURNING clause.
-		return id, errors.New("ent: ServiceUpsertOne.ID is not supported by MySQL driver. Use ServiceUpsertOne.Exec instead")
-	}
-	node, err := u.create.Save(ctx)
-	if err != nil {
-		return id, err
-	}
-	return node.ID, nil
-}
-
-// IDX is like ID, but panics if an error occurs.
-func (u *ServiceUpsertOne) IDX(ctx context.Context) uuid.UUID {
-	id, err := u.ID(ctx)
-	if err != nil {
-		panic(err)
-	}
-	return id
-}
-
 // ServiceCreateBulk is the builder for creating many Service entities in bulk.
 type ServiceCreateBulk struct {
 	config
 	builders []*ServiceCreate
-	conflict []sql.ConflictOption
 }
 
 // Save creates the Service entities in the database.
@@ -476,7 +255,6 @@ func (scb *ServiceCreateBulk) Save(ctx context.Context) ([]*Service, error) {
 					_, err = mutators[i+1].Mutate(root, scb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = scb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, scb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -523,162 +301,6 @@ func (scb *ServiceCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (scb *ServiceCreateBulk) ExecX(ctx context.Context) {
 	if err := scb.Exec(ctx); err != nil {
-		panic(err)
-	}
-}
-
-// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
-// of the `INSERT` statement. For example:
-//
-//	client.Service.CreateBulk(builders...).
-//		OnConflict(
-//			// Update the row with the new values
-//			// the was proposed for insertion.
-//			sql.ResolveWithNewValues(),
-//		).
-//		// Override some of the fields with custom
-//		// update values.
-//		Update(func(u *ent.ServiceUpsert) {
-//			SetCreateTime(v+v).
-//		}).
-//		Exec(ctx)
-func (scb *ServiceCreateBulk) OnConflict(opts ...sql.ConflictOption) *ServiceUpsertBulk {
-	scb.conflict = opts
-	return &ServiceUpsertBulk{
-		create: scb,
-	}
-}
-
-// OnConflictColumns calls `OnConflict` and configures the columns
-// as conflict target. Using this option is equivalent to using:
-//
-//	client.Service.Create().
-//		OnConflict(sql.ConflictColumns(columns...)).
-//		Exec(ctx)
-func (scb *ServiceCreateBulk) OnConflictColumns(columns ...string) *ServiceUpsertBulk {
-	scb.conflict = append(scb.conflict, sql.ConflictColumns(columns...))
-	return &ServiceUpsertBulk{
-		create: scb,
-	}
-}
-
-// ServiceUpsertBulk is the builder for "upsert"-ing
-// a bulk of Service nodes.
-type ServiceUpsertBulk struct {
-	create *ServiceCreateBulk
-}
-
-// UpdateNewValues updates the mutable fields using the new values that
-// were set on create. Using this option is equivalent to using:
-//
-//	client.Service.Create().
-//		OnConflict(
-//			sql.ResolveWithNewValues(),
-//			sql.ResolveWith(func(u *sql.UpdateSet) {
-//				u.SetIgnore(service.FieldID)
-//			}),
-//		).
-//		Exec(ctx)
-func (u *ServiceUpsertBulk) UpdateNewValues() *ServiceUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
-		for _, b := range u.create.builders {
-			if _, exists := b.mutation.ID(); exists {
-				s.SetIgnore(service.FieldID)
-			}
-			if _, exists := b.mutation.CreateTime(); exists {
-				s.SetIgnore(service.FieldCreateTime)
-			}
-		}
-	}))
-	return u
-}
-
-// Ignore sets each column to itself in case of conflict.
-// Using this option is equivalent to using:
-//
-//	client.Service.Create().
-//		OnConflict(sql.ResolveWithIgnore()).
-//		Exec(ctx)
-func (u *ServiceUpsertBulk) Ignore() *ServiceUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
-	return u
-}
-
-// DoNothing configures the conflict_action to `DO NOTHING`.
-// Supported only by SQLite and PostgreSQL.
-func (u *ServiceUpsertBulk) DoNothing() *ServiceUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.DoNothing())
-	return u
-}
-
-// Update allows overriding fields `UPDATE` values. See the ServiceCreateBulk.OnConflict
-// documentation for more info.
-func (u *ServiceUpsertBulk) Update(set func(*ServiceUpsert)) *ServiceUpsertBulk {
-	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
-		set(&ServiceUpsert{UpdateSet: update})
-	}))
-	return u
-}
-
-// SetUpdateTime sets the "update_time" field.
-func (u *ServiceUpsertBulk) SetUpdateTime(v time.Time) *ServiceUpsertBulk {
-	return u.Update(func(s *ServiceUpsert) {
-		s.SetUpdateTime(v)
-	})
-}
-
-// UpdateUpdateTime sets the "update_time" field to the value that was provided on create.
-func (u *ServiceUpsertBulk) UpdateUpdateTime() *ServiceUpsertBulk {
-	return u.Update(func(s *ServiceUpsert) {
-		s.UpdateUpdateTime()
-	})
-}
-
-// SetService sets the "service" field.
-func (u *ServiceUpsertBulk) SetService(v service.Service) *ServiceUpsertBulk {
-	return u.Update(func(s *ServiceUpsert) {
-		s.SetService(v)
-	})
-}
-
-// UpdateService sets the "service" field to the value that was provided on create.
-func (u *ServiceUpsertBulk) UpdateService() *ServiceUpsertBulk {
-	return u.Update(func(s *ServiceUpsert) {
-		s.UpdateService()
-	})
-}
-
-// SetURL sets the "url" field.
-func (u *ServiceUpsertBulk) SetURL(v string) *ServiceUpsertBulk {
-	return u.Update(func(s *ServiceUpsert) {
-		s.SetURL(v)
-	})
-}
-
-// UpdateURL sets the "url" field to the value that was provided on create.
-func (u *ServiceUpsertBulk) UpdateURL() *ServiceUpsertBulk {
-	return u.Update(func(s *ServiceUpsert) {
-		s.UpdateURL()
-	})
-}
-
-// Exec executes the query.
-func (u *ServiceUpsertBulk) Exec(ctx context.Context) error {
-	for i, b := range u.create.builders {
-		if len(b.conflict) != 0 {
-			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the ServiceCreateBulk instead", i)
-		}
-	}
-	if len(u.create.conflict) == 0 {
-		return errors.New("ent: missing options for ServiceCreateBulk.OnConflict")
-	}
-	return u.create.Exec(ctx)
-}
-
-// ExecX is like Exec, but panics if an error occurs.
-func (u *ServiceUpsertBulk) ExecX(ctx context.Context) {
-	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
