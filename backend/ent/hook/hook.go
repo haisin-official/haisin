@@ -9,16 +9,16 @@ import (
 	"github.com/haisin-official/haisin/ent"
 )
 
-// The UrlFunc type is an adapter to allow the use of ordinary
-// function as Url mutator.
-type UrlFunc func(context.Context, *ent.URLMutation) (ent.Value, error)
+// The ServiceFunc type is an adapter to allow the use of ordinary
+// function as Service mutator.
+type ServiceFunc func(context.Context, *ent.ServiceMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).
-func (f UrlFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.URLMutation); ok {
+func (f ServiceFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.ServiceMutation); ok {
 		return f(ctx, mv)
 	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.URLMutation", m)
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.ServiceMutation", m)
 }
 
 // The UserFunc type is an adapter to allow the use of ordinary

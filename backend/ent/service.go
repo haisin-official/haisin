@@ -9,12 +9,12 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
-	"github.com/haisin-official/haisin/ent/url"
+	"github.com/haisin-official/haisin/ent/service"
 	"github.com/haisin-official/haisin/ent/user"
 )
 
-// Url is the model entity for the Url schema.
-type Url struct {
+// Service is the model entity for the Service schema.
+type Service struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID uuid.UUID `json:"id,omitempty"`
@@ -23,17 +23,17 @@ type Url struct {
 	// UpdateTime holds the value of the "update_time" field.
 	UpdateTime time.Time `json:"update_time,omitempty"`
 	// Service holds the value of the "service" field.
-	Service url.Service `json:"service,omitempty"`
+	Service service.Service `json:"service,omitempty"`
 	// URL holds the value of the "url" field.
 	URL string `json:"url,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the UrlQuery when eager-loading is set.
-	Edges     UrlEdges `json:"edges"`
+	// The values are being populated by the ServiceQuery when eager-loading is set.
+	Edges     ServiceEdges `json:"edges"`
 	user_uuid *uuid.UUID
 }
 
-// UrlEdges holds the relations/edges for other nodes in the graph.
-type UrlEdges struct {
+// ServiceEdges holds the relations/edges for other nodes in the graph.
+type ServiceEdges struct {
 	// UserID holds the value of the user_id edge.
 	UserID *User `json:"user_id,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -43,7 +43,7 @@ type UrlEdges struct {
 
 // UserIDOrErr returns the UserID value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e UrlEdges) UserIDOrErr() (*User, error) {
+func (e ServiceEdges) UserIDOrErr() (*User, error) {
 	if e.loadedTypes[0] {
 		if e.UserID == nil {
 			// Edge was loaded but was not found.
@@ -55,117 +55,117 @@ func (e UrlEdges) UserIDOrErr() (*User, error) {
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
-func (*Url) scanValues(columns []string) ([]any, error) {
+func (*Service) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case url.FieldService, url.FieldURL:
+		case service.FieldService, service.FieldURL:
 			values[i] = new(sql.NullString)
-		case url.FieldCreateTime, url.FieldUpdateTime:
+		case service.FieldCreateTime, service.FieldUpdateTime:
 			values[i] = new(sql.NullTime)
-		case url.FieldID:
+		case service.FieldID:
 			values[i] = new(uuid.UUID)
-		case url.ForeignKeys[0]: // user_uuid
+		case service.ForeignKeys[0]: // user_uuid
 			values[i] = &sql.NullScanner{S: new(uuid.UUID)}
 		default:
-			return nil, fmt.Errorf("unexpected column %q for type Url", columns[i])
+			return nil, fmt.Errorf("unexpected column %q for type Service", columns[i])
 		}
 	}
 	return values, nil
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the Url fields.
-func (u *Url) assignValues(columns []string, values []any) error {
+// to the Service fields.
+func (s *Service) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case url.FieldID:
+		case service.FieldID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value != nil {
-				u.ID = *value
+				s.ID = *value
 			}
-		case url.FieldCreateTime:
+		case service.FieldCreateTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field create_time", values[i])
 			} else if value.Valid {
-				u.CreateTime = value.Time
+				s.CreateTime = value.Time
 			}
-		case url.FieldUpdateTime:
+		case service.FieldUpdateTime:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field update_time", values[i])
 			} else if value.Valid {
-				u.UpdateTime = value.Time
+				s.UpdateTime = value.Time
 			}
-		case url.FieldService:
+		case service.FieldService:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field service", values[i])
 			} else if value.Valid {
-				u.Service = url.Service(value.String)
+				s.Service = service.Service(value.String)
 			}
-		case url.FieldURL:
+		case service.FieldURL:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field url", values[i])
 			} else if value.Valid {
-				u.URL = value.String
+				s.URL = value.String
 			}
-		case url.ForeignKeys[0]:
+		case service.ForeignKeys[0]:
 			if value, ok := values[i].(*sql.NullScanner); !ok {
 				return fmt.Errorf("unexpected type %T for field user_uuid", values[i])
 			} else if value.Valid {
-				u.user_uuid = new(uuid.UUID)
-				*u.user_uuid = *value.S.(*uuid.UUID)
+				s.user_uuid = new(uuid.UUID)
+				*s.user_uuid = *value.S.(*uuid.UUID)
 			}
 		}
 	}
 	return nil
 }
 
-// QueryUserID queries the "user_id" edge of the Url entity.
-func (u *Url) QueryUserID() *UserQuery {
-	return NewURLClient(u.config).QueryUserID(u)
+// QueryUserID queries the "user_id" edge of the Service entity.
+func (s *Service) QueryUserID() *UserQuery {
+	return NewServiceClient(s.config).QueryUserID(s)
 }
 
-// Update returns a builder for updating this Url.
-// Note that you need to call Url.Unwrap() before calling this method if this Url
+// Update returns a builder for updating this Service.
+// Note that you need to call Service.Unwrap() before calling this method if this Service
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (u *Url) Update() *URLUpdateOne {
-	return NewURLClient(u.config).UpdateOne(u)
+func (s *Service) Update() *ServiceUpdateOne {
+	return NewServiceClient(s.config).UpdateOne(s)
 }
 
-// Unwrap unwraps the Url entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the Service entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (u *Url) Unwrap() *Url {
-	_tx, ok := u.config.driver.(*txDriver)
+func (s *Service) Unwrap() *Service {
+	_tx, ok := s.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: Url is not a transactional entity")
+		panic("ent: Service is not a transactional entity")
 	}
-	u.config.driver = _tx.drv
-	return u
+	s.config.driver = _tx.drv
+	return s
 }
 
 // String implements the fmt.Stringer.
-func (u *Url) String() string {
+func (s *Service) String() string {
 	var builder strings.Builder
-	builder.WriteString("Url(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", u.ID))
+	builder.WriteString("Service(")
+	builder.WriteString(fmt.Sprintf("id=%v, ", s.ID))
 	builder.WriteString("create_time=")
-	builder.WriteString(u.CreateTime.Format(time.ANSIC))
+	builder.WriteString(s.CreateTime.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("update_time=")
-	builder.WriteString(u.UpdateTime.Format(time.ANSIC))
+	builder.WriteString(s.UpdateTime.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("service=")
-	builder.WriteString(fmt.Sprintf("%v", u.Service))
+	builder.WriteString(fmt.Sprintf("%v", s.Service))
 	builder.WriteString(", ")
 	builder.WriteString("url=")
-	builder.WriteString(u.URL)
+	builder.WriteString(s.URL)
 	builder.WriteByte(')')
 	return builder.String()
 }
 
-// Urls is a parsable slice of Url.
-type Urls []*Url
+// Services is a parsable slice of Service.
+type Services []*Service

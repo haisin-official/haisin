@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/haisin-official/haisin/ent/schema"
-	"github.com/haisin-official/haisin/ent/url"
+	"github.com/haisin-official/haisin/ent/service"
 	"github.com/haisin-official/haisin/ent/user"
 )
 
@@ -14,26 +14,26 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
-	urlMixin := schema.Url{}.Mixin()
-	urlMixinFields0 := urlMixin[0].Fields()
-	_ = urlMixinFields0
-	urlFields := schema.Url{}.Fields()
-	_ = urlFields
-	// urlDescCreateTime is the schema descriptor for create_time field.
-	urlDescCreateTime := urlMixinFields0[0].Descriptor()
-	// url.DefaultCreateTime holds the default value on creation for the create_time field.
-	url.DefaultCreateTime = urlDescCreateTime.Default.(func() time.Time)
-	// urlDescUpdateTime is the schema descriptor for update_time field.
-	urlDescUpdateTime := urlMixinFields0[1].Descriptor()
-	// url.DefaultUpdateTime holds the default value on creation for the update_time field.
-	url.DefaultUpdateTime = urlDescUpdateTime.Default.(func() time.Time)
-	// url.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
-	url.UpdateDefaultUpdateTime = urlDescUpdateTime.UpdateDefault.(func() time.Time)
-	// urlDescURL is the schema descriptor for url field.
-	urlDescURL := urlFields[2].Descriptor()
-	// url.URLValidator is a validator for the "url" field. It is called by the builders before save.
-	url.URLValidator = func() func(string) error {
-		validators := urlDescURL.Validators
+	serviceMixin := schema.Service{}.Mixin()
+	serviceMixinFields0 := serviceMixin[0].Fields()
+	_ = serviceMixinFields0
+	serviceFields := schema.Service{}.Fields()
+	_ = serviceFields
+	// serviceDescCreateTime is the schema descriptor for create_time field.
+	serviceDescCreateTime := serviceMixinFields0[0].Descriptor()
+	// service.DefaultCreateTime holds the default value on creation for the create_time field.
+	service.DefaultCreateTime = serviceDescCreateTime.Default.(func() time.Time)
+	// serviceDescUpdateTime is the schema descriptor for update_time field.
+	serviceDescUpdateTime := serviceMixinFields0[1].Descriptor()
+	// service.DefaultUpdateTime holds the default value on creation for the update_time field.
+	service.DefaultUpdateTime = serviceDescUpdateTime.Default.(func() time.Time)
+	// service.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
+	service.UpdateDefaultUpdateTime = serviceDescUpdateTime.UpdateDefault.(func() time.Time)
+	// serviceDescURL is the schema descriptor for url field.
+	serviceDescURL := serviceFields[2].Descriptor()
+	// service.URLValidator is a validator for the "url" field. It is called by the builders before save.
+	service.URLValidator = func() func(string) error {
+		validators := serviceDescURL.Validators
 		fns := [...]func(string) error{
 			validators[0].(func(string) error),
 			validators[1].(func(string) error),

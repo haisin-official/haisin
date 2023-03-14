@@ -13,7 +13,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/google/uuid"
 	"github.com/haisin-official/haisin/ent/predicate"
-	"github.com/haisin-official/haisin/ent/url"
+	"github.com/haisin-official/haisin/ent/service"
 	"github.com/haisin-official/haisin/ent/user"
 )
 
@@ -24,7 +24,7 @@ type UserQuery struct {
 	order      []OrderFunc
 	inters     []Interceptor
 	predicates []predicate.User
-	withUUID   *URLQuery
+	withUUID   *ServiceQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -62,8 +62,8 @@ func (uq *UserQuery) Order(o ...OrderFunc) *UserQuery {
 }
 
 // QueryUUID chains the current query on the "uuid" edge.
-func (uq *UserQuery) QueryUUID() *URLQuery {
-	query := (&URLClient{config: uq.config}).Query()
+func (uq *UserQuery) QueryUUID() *ServiceQuery {
+	query := (&ServiceClient{config: uq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := uq.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -74,7 +74,7 @@ func (uq *UserQuery) QueryUUID() *URLQuery {
 		}
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, selector),
-			sqlgraph.To(url.Table, url.FieldID),
+			sqlgraph.To(service.Table, service.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.UUIDTable, user.UUIDColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
@@ -284,8 +284,8 @@ func (uq *UserQuery) Clone() *UserQuery {
 
 // WithUUID tells the query-builder to eager-load the nodes that are connected to
 // the "uuid" edge. The optional arguments are used to configure the query builder of the edge.
-func (uq *UserQuery) WithUUID(opts ...func(*URLQuery)) *UserQuery {
-	query := (&URLClient{config: uq.config}).Query()
+func (uq *UserQuery) WithUUID(opts ...func(*ServiceQuery)) *UserQuery {
+	query := (&ServiceClient{config: uq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
@@ -395,15 +395,15 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	}
 	if query := uq.withUUID; query != nil {
 		if err := uq.loadUUID(ctx, query, nodes,
-			func(n *User) { n.Edges.UUID = []*Url{} },
-			func(n *User, e *Url) { n.Edges.UUID = append(n.Edges.UUID, e) }); err != nil {
+			func(n *User) { n.Edges.UUID = []*Service{} },
+			func(n *User, e *Service) { n.Edges.UUID = append(n.Edges.UUID, e) }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (uq *UserQuery) loadUUID(ctx context.Context, query *URLQuery, nodes []*User, init func(*User), assign func(*User, *Url)) error {
+func (uq *UserQuery) loadUUID(ctx context.Context, query *ServiceQuery, nodes []*User, init func(*User), assign func(*User, *Service)) error {
 	fks := make([]driver.Value, 0, len(nodes))
 	nodeids := make(map[uuid.UUID]*User)
 	for i := range nodes {
@@ -414,7 +414,7 @@ func (uq *UserQuery) loadUUID(ctx context.Context, query *URLQuery, nodes []*Use
 		}
 	}
 	query.withFKs = true
-	query.Where(predicate.Url(func(s *sql.Selector) {
+	query.Where(predicate.Service(func(s *sql.Selector) {
 		s.Where(sql.InValues(user.UUIDColumn, fks...))
 	}))
 	neighbors, err := query.All(ctx)
