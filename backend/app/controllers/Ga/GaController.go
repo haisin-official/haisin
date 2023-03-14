@@ -67,7 +67,14 @@ func (GaController) GaPost(c *gin.Context) {
 	// リクエストからGaが存在するか確認する
 	reqBody := new(requests.GaPostRequestBody)
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
 		c.JSON(http.StatusBadRequest, gin.H{"error": http.StatusText(http.StatusBadRequest)})
+		return
+	}
+	// Validationを実行
+	if err := c.ShouldBind(reqBody); err != nil {
+		c.AbortWithStatus(http.StatusUnprocessableEntity)
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": http.StatusText(http.StatusUnprocessableEntity)})
 		return
 	}
 

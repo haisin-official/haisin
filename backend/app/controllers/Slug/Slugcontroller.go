@@ -71,6 +71,13 @@ func (SlugController) SlugPost(c *gin.Context) {
 		return
 	}
 
+	// Validationを実行する
+	if err := c.ShouldBind(reqBody); err != nil {
+		c.AbortWithStatus(http.StatusUnprocessableEntity)
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": http.StatusText(http.StatusUnprocessableEntity)})
+		return
+	}
+
 	req := requests.SlugPostRequest{
 		UserID: u,
 		Slug:   reqBody.Slug,
