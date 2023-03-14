@@ -44,7 +44,7 @@ func (ServiceUseCase) ServicePostAction(req requests.ServicePostRequest) (respon
 	}
 
 	// userId & name ですでに登録されているデータが存在するか確認する
-	service, _, err := getService(userId, name)
+	service, _, _ := getService(userId, name)
 	// 存在しない場合
 	if service == nil {
 		// insertを行う
