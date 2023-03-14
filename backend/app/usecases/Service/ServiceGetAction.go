@@ -16,7 +16,7 @@ import (
 func (ServiceUseCase) ServiceGetAction(req requests.ServiceGetRequest) (responses.ServiceGetResponse, int, error) {
 	userId := req.UserID
 
-	services, httpCode, err := getService(userId)
+	services, httpCode, err := getAllService(userId)
 	if err != nil {
 		return responses.ServiceGetResponse{}, httpCode, err
 	}
@@ -41,7 +41,7 @@ func (ServiceUseCase) ServiceGetAction(req requests.ServiceGetRequest) (response
 	return res, http.StatusOK, nil
 }
 
-func getService(userId uuid.UUID) ([]*ent.Service, int, error) {
+func getAllService(userId uuid.UUID) ([]*ent.Service, int, error) {
 	client := database.GetClient()
 	ctx := context.Background()
 
