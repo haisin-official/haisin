@@ -6,6 +6,7 @@ import (
 	OAuthController "github.com/haisin-official/haisin/app/controllers/OAuth"
 	ServiceController "github.com/haisin-official/haisin/app/controllers/Service"
 	SlugController "github.com/haisin-official/haisin/app/controllers/Slug"
+	UrlController "github.com/haisin-official/haisin/app/controllers/Url"
 	UserController "github.com/haisin-official/haisin/app/controllers/User"
 
 	"github.com/haisin-official/haisin/app/middleware"
@@ -54,5 +55,12 @@ func Router(router *gin.Engine) {
 		service.GET("/", controller.ServiceGet)
 		service.POST("/", controller.ServicePost)
 		service.DELETE("/:name", controller.ServiceDelete)
+	}
+
+	url := v1.Group("/url")
+	{
+		controller := UrlController.UrlController{}
+		url.GET("/:slug", controller.UrlSlugGet)
+		url.GET("/:slug/:service", controller.UrlSlugServiceGet)
 	}
 }
