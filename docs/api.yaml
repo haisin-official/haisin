@@ -17,7 +17,7 @@ info:
 tags:
   - name: OAuth
     description: Sign in or Sign up
-  - name: profile
+  - name: user
     description: User Profile
   - name: ga
     description: Google Analytics
@@ -76,12 +76,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InternalServerError"
-  /profile:
+  /user/me:
     get:
       tags:
-        - profile
+        - user
       summary: Get My Profile
-      operationId: getProfile
+      operationId: getUserProfile
       description: |
         ログイン中のユーザー情報を取得します
       responses:
@@ -103,7 +103,73 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/InternalServerError"
+  /user/logout:
+    post:
+      tags:
+        - user
+      summary: Logout from hais.in
+      operationId: logout
+      description: |
+        ログアウトします
+      responses:
+        "200":
+          description: "特になし"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Logout"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+
   /ga:
+    get:
+      tags:
+        - ga
+      summary: Get GA
+      operationId: getGa
+      description: |
+        Google Analytics 4 のコードを取得します
+      responses:
+        "200":
+          description: "ユーザーの持つスラッグ"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GAData"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
     post:
       tags:
         - ga
@@ -154,6 +220,45 @@ paths:
             schema:
               $ref: "#/components/schemas/GAData"
         description: 新しいGAコード
+    delete:
+      tags:
+        - ga
+      summary: Delete GA
+      operationId: deleteGA
+      description: |
+        GA4のコードを削除します
+      responses:
+        "200":
+          description: "削除完了"
+          content:
+            application/json:
+              schema:
+                type: object
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Unauthorized"
+        "404":
+          description: Service Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFound"
+        "429":
+          description: Too many requests
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TooManyRequests"
+        "500":
+          description: Internal Server Error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InternalServerError"
+
 
   /slug:
     get:
@@ -517,6 +622,8 @@ components:
           type: string
           format: url
           example: https://google.com/...
+    Logout:
+      type: object
     UserData:
       type: object
       required: 
