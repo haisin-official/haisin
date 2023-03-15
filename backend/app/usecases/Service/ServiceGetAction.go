@@ -45,7 +45,7 @@ func getAllService(userId uuid.UUID) ([]*ent.Service, int, error) {
 	client := database.GetClient()
 	ctx := context.Background()
 
-	service, err := client.Service.
+	services, err := client.Service.
 		Query().
 		Select(service.FieldService, service.FieldURL).
 		Where(
@@ -63,7 +63,7 @@ func getAllService(userId uuid.UUID) ([]*ent.Service, int, error) {
 		return nil, http.StatusInternalServerError, err
 	}
 
-	return service, http.StatusOK, nil
+	return services, http.StatusOK, nil
 }
 
 func getSlug(userId uuid.UUID) (*ent.User, int, error) {
