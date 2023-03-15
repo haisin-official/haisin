@@ -48,7 +48,7 @@ func (UrlController) UrlSlugServiceGet(c *gin.Context) {
 	// nameが要件を満たしているのか確認する
 	if err := service.ServiceValidator(service.Service(name)); err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
-		c.JSON(http.StatusBadRequest, gin.H{"error": http.StatusText(http.StatusBadRequest)})
+		c.JSON(http.StatusNotFound, gin.H{"error": http.StatusText(http.StatusNotFound)})
 		return
 	}
 
