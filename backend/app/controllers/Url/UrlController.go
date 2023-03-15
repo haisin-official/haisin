@@ -52,10 +52,11 @@ func (UrlController) UrlSlugServiceGet(c *gin.Context) {
 		return
 	}
 
-	req := requests.UrlSlugGetRequest{
-		Slug: slug,
+	req := requests.UrlSlugServiceGetRequest{
+		Slug:    slug,
+		Service: name,
 	}
-	result, code, err := usecases.UrlUseCase{}.UrlSlugGetAction(req)
+	result, code, err := usecases.UrlUseCase{}.UrlSlugServiceGetAction(req)
 
 	if err != nil {
 		c.AbortWithStatus(code)
