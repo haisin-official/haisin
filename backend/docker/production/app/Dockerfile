@@ -1,6 +1,6 @@
 # Docker build command
 # docker build -t haisin_official/backend:latest -f ./docker/production/app/Dockerfile .
-
+# docker run --name haisin_backend --env-file "$(pwd)/.env.production" -p 8000:8000 haisin_official/backend:latest 
 # build stage
 FROM golang:1.20-alpine AS build
 ENV TZ=Asia/Tokyo
@@ -24,7 +24,7 @@ RUN go mod download
 
 COPY . .
 
-RUN GO_ENV=production go build -ldflags "-w -s" -o main
+RUN GO_ENV=production go build -ldflags "-w -s" -o main main.go
 
 # Execute go binary
 FROM alpine:latest AS execute
@@ -33,6 +33,6 @@ RUN apk update
 
 COPY --from=build /go/app/main .
 
-EXPOSE 8080
+EXPOSE 8000
 
 CMD ["./main"]
