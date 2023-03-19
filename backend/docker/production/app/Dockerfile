@@ -1,5 +1,5 @@
 # Docker build command
-# docker build -t haisin-official/backend:latest -f ./docker/production/app/Dockerfile .
+# docker build -t haisin-official/backend:latest -t haisin-official/backend:v1 -f ./docker/production/app/Dockerfile .
 # docker run --name haisin_backend --net=host --env-file "$(pwd)/.env.production" -p 8000:8000 haisin-official/backend:latest 
 # build stage
 FROM golang:1.20-alpine AS build
