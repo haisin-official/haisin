@@ -2,5 +2,3 @@
 FROM arigaio/atlas:latest
 
 COPY ./ent/migrate/migrations /migrations
-
-CMD ["migrate", "apply", "--url", "${DB_URL}"]
