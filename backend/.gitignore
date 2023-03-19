@@ -2,3 +2,4 @@
 .env.production
 main
 tmp/
+*-secret.yaml
