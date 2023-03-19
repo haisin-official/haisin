@@ -30,7 +30,6 @@ spec:
         ports:
           - containerPort: 8000
             name: app
-            targetPort: 8000
         resources:
           limits:
             memory: "1024Mi"

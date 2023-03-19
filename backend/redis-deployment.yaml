@@ -26,7 +26,6 @@ spec:
         ports:
           - containerPort: 6379
             name: redis
-            targetPort: 6379
         volumeMounts:
           - mountPath: /data
             name: haisin-redis-persistent-storage

@@ -26,7 +26,6 @@ spec:
         ports:
           - containerPort: 5432
             name: postgres
-            targetPort: 5432
         volumeMounts:
           - mountPath: /var/lib/postgresql/data
             name: haisin-postgres-persistent-storage
