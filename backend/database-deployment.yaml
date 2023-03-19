@@ -34,7 +34,7 @@ spec:
           limits:
             memory: "4096Mi"
             cpu: "1500m"
-    volumes:
-      - name: haisin-postgres-persistent-storage
-        persistentVolumeClaim:
-          claimName: haisin-postgres-pv-claim
+      volumes:
+        - name: haisin-postgres-persistent-storage
+          persistentVolumeClaim:
+            claimName: haisin-postgres-pv-claim

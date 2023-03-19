@@ -34,7 +34,7 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
-    volumes:
-      - name: haisin-redis-persistent-storage
-        persistentVolumeClaim:
-          claimName: haisin-redis-pv-claim
+      volumes:
+        - name: haisin-redis-persistent-storage
+          persistentVolumeClaim:
+            claimName: haisin-redis-pv-claim
