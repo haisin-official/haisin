@@ -18,8 +18,8 @@ spec:
     spec:
       containers:
       - name: haisin-app
-        image: haisin-official/backend:latest
-        imagePullPolicy: "IfNotPresent"
+        image: haisin-official/backend:v1
+        imagePullPolicy: IfNotPresent
         envFrom:
           - secretRef:
               name: haisin-app-secret
