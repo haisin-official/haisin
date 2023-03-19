@@ -11,6 +11,7 @@ kubectl apply -f app-secret.yaml
 
 kubectl apply -f database-pv.yaml
 kubectl apply -f database-pvc.yaml
+kubectl apply -f database-cm.yaml
 kubectl apply -f database-deployment.yaml
 kubectl apply -f database-service.yaml
 
