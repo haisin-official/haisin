@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"os"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -13,9 +14,9 @@ import (
 
 func GetOAuth2Conf() *oauth2.Config {
 	return &oauth2.Config{
-		ClientID:     GetEnv("OAUTH_CLIENT"),
-		ClientSecret: GetEnv("OAUTH_SECRET"),
-		RedirectURL:  GetEnv("OAUTH_REDIRECT"),
+		ClientID:     os.Getenv("OAUTH_CLIENT"),
+		ClientSecret: os.Getenv("OAUTH_SECRET"),
+		RedirectURL:  os.Getenv("OAUTH_REDIRECT"),
 		Scopes: []string{
 			"https://www.googleapis.com/auth/userinfo.email",
 		},
@@ -25,12 +26,12 @@ func GetOAuth2Conf() *oauth2.Config {
 
 func GetRedirectUrl() (string, int, error) {
 	conf := GetOAuth2Conf()
-	url := conf.AuthCodeURL(GetEnv("OAUTH_CSRF_TOKEN"), oauth2.AccessTypeOffline)
+	url := conf.AuthCodeURL(os.Getenv("OAUTH_CSRF_TOKEN"), oauth2.AccessTypeOffline)
 	return url, http.StatusOK, nil
 }
 
 func CheckOAuthToken(state string, code string) (*oauth2.Token, int, error) {
-	csrf := GetEnv("OAUTH_CSRF_TOKEN")
+	csrf := os.Getenv("OAUTH_CSRF_TOKEN")
 	// Tokenの値が違う場合, エラーを返却する
 	if state != csrf {
 		return nil, http.StatusForbidden, fmt.Errorf("CSRF TOKEN Invalid")

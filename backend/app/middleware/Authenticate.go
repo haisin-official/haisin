@@ -3,16 +3,16 @@ package middleware
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/haisin-official/haisin/config"
 	"github.com/haisin-official/haisin/config/session"
 )
 
 func Authenticate() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// セッションが存在するか確認
-		cKey := config.GetEnv("SESSION_KEY")
+		cKey := os.Getenv("SESSION_KEY")
 		data, httpCode, err := session.GetSession(c, cKey)
 		if err != nil {
 			fmt.Println(err)

@@ -1,8 +1,11 @@
 # Docker build command
-
+# docker build -t haisin_official/backend:latest -f ./docker/production/app/Dockerfile .
 
 # build stage
 FROM golang:1.20-alpine AS build
+ENV TZ=Asia/Tokyo
+ENV GOOS=linux
+ENV GOARCH=amd64
 
 # Install necessary package
 RUN set -eux; \
@@ -21,7 +24,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -ldflags "-w -s" -o main
+RUN GO_ENV=production go build -ldflags "-w -s" -o main
 
 # Execute go binary
 FROM alpine:latest AS execute
@@ -29,5 +32,7 @@ FROM alpine:latest AS execute
 RUN apk update
 
 COPY --from=build /go/app/main .
+
+EXPOSE 8080
 
 CMD ["./main"]

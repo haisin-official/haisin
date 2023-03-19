@@ -3,12 +3,12 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	requests "github.com/haisin-official/haisin/app/requests/Service"
 	usecases "github.com/haisin-official/haisin/app/usecases/Service"
-	"github.com/haisin-official/haisin/config"
 	"github.com/haisin-official/haisin/config/session"
 	"github.com/haisin-official/haisin/ent/service"
 )
@@ -16,7 +16,7 @@ import (
 type ServiceController struct{}
 
 func (ServiceController) ServiceGet(c *gin.Context) {
-	cKey := config.GetEnv("SESSION_KEY")
+	cKey := os.Getenv("SESSION_KEY")
 	data, httpCode, err := session.GetSession(c, cKey)
 	if err != nil {
 		fmt.Println(err)
@@ -48,7 +48,7 @@ func (ServiceController) ServiceGet(c *gin.Context) {
 }
 
 func (ServiceController) ServicePost(c *gin.Context) {
-	cKey := config.GetEnv("SESSION_KEY")
+	cKey := os.Getenv("SESSION_KEY")
 	data, httpCode, err := session.GetSession(c, cKey)
 	if err != nil {
 		fmt.Println(err)
@@ -89,7 +89,7 @@ func (ServiceController) ServicePost(c *gin.Context) {
 }
 
 func (ServiceController) ServiceDelete(c *gin.Context) {
-	cKey := config.GetEnv("SESSION_KEY")
+	cKey := os.Getenv("SESSION_KEY")
 	data, httpCode, err := session.GetSession(c, cKey)
 	if err != nil {
 		fmt.Println(err)

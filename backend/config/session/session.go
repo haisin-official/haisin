@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/haisin-official/haisin/app/utils"
-	"github.com/haisin-official/haisin/config"
 	goRedis "github.com/redis/go-redis/v9"
 )
 
@@ -33,7 +33,7 @@ var (
 )
 
 func init() {
-	url := config.GetEnv("REDIS_URL")
+	url := os.Getenv("REDIS_URL")
 	opt, err := goRedis.ParseURL(url)
 	if err != nil {
 		log.Panicf("Fatal Error of redis 🚫\n %v", err)
@@ -44,8 +44,8 @@ func init() {
 
 	manager.MaxAge = 86400
 	manager.Path = "/"
-	manager.Domain = config.GetEnv("HTTP_HOST")
-	manager.Secure, _ = strconv.ParseBool(config.GetEnv("SESSION_SECURE"))
+	manager.Domain = os.Getenv("HTTP_HOST")
+	manager.Secure, _ = strconv.ParseBool(os.Getenv("SESSION_SECURE"))
 	manager.HttpOnly = true
 }
 

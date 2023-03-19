@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/haisin-official/haisin/app/validators"
-	"github.com/haisin-official/haisin/config"
 	"github.com/haisin-official/haisin/database"
 	"github.com/haisin-official/haisin/routes"
 	_ "github.com/lib/pq"
@@ -13,8 +13,8 @@ import (
 
 func main() {
 	// Connect to postgresql
-	dbType := config.GetEnv("DB_TYPE")
-	dbDSN := config.GetEnv("DB_DSN")
+	dbType := os.Getenv("DB_TYPE")
+	dbDSN := os.Getenv("DB_DSN")
 	database.InitClient(dbType, dbDSN)
 	defer database.CloseClient()
 
@@ -27,9 +27,9 @@ func main() {
 	// Register Validators for Gin Framework
 	validators.Register()
 
-	port := config.GetEnv("HTTP_PORT")
+	port := os.Getenv("HTTP_PORT")
 	r.Run(":" + port)
 
-	fmt.Println("hais.in version:", config.GetEnv("VERSION"))
+	fmt.Println("hais.in version:", os.Getenv("VERSION"))
 	fmt.Println("Listening:", port)
 }
