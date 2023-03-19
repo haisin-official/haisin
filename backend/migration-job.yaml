@@ -13,8 +13,8 @@ spec:
     spec:
       containers:
       - name: haisin-migration
-        image: haisin-official/migration:k8s
-        imagePullPolicy: Never
+        image: haisin-official/migration:v1
+        imagePullPolicy: IfNotPresent
         envFrom:
           - secretRef:
               name: haisin-migration-secret
@@ -23,4 +23,4 @@ spec:
             memory: "1024Mi"
             cpu: "1000m"
       restartPolicy: Never
-  backoffLimit: 4
+  backoffLimit: 1

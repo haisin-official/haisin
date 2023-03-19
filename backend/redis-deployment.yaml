@@ -19,7 +19,7 @@ spec:
       containers:
       - name: haisin-redis
         image: redis:alpine
-        imagePullPolicy: "IfNotPresent"
+        imagePullPolicy: IfNotPresent
         envFrom:
           - secretRef:
               name: haisin-redis-secret
