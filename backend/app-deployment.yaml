@@ -25,6 +25,8 @@ spec:
               name: haisin_app_secret
           - secretRef:
               name: haisin_postgres_secret
+          - secretRef:
+              name: haisin_redis_secret
         ports:
           - containerPort: 8000
             name: app
