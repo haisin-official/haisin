@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: haisin_database
+  labels:
+    app: haisin_database
+spec:
+  selector:
+    matchLabels:
+      app: haisin_postgres
+      tier: postgres
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: haisin_postgres
+        tier: postgres
+    spec:
+      containers:
+      - image: postgres:14-alpine
+        name: haisin_postgres
+        imagePullPolicy: "IfNotPresent"
+        envFrom:
+          - secretRef:
+            name: haisin_postgres_secret
+        ports:
+          - containerPort: 5432
+            name: postgres
+        volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: haisin_postgres_persistent_storage
+    volumes:
+      - name: haisin_postgres_persistent_storage
+        persistentVolumeClaim:
+          claimName: haisin_postgres_pv_claim
