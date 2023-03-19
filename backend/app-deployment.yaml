@@ -1,32 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: haisin_app
+  name: haisin-app
   labels:
-    app: haisin_app
+    app: haisin-app
 spec:
   selector:
     matchLabels:
-      app: haisin_app
+      app: haisin-app
       tier: app
   replicas: 2
   template:
     metadata:
       labels:
-        app: haisin_app
+        app: haisin-app
         tier: app
     spec:
       containers:
-      - name: haisin_app
-        image: haisin_official/backend:latest
+      - name: haisin-app
+        image: haisin-official/backend:latest
         imagePullPolicy: "IfNotPresent"
         envFrom:
           - secretRef:
-              name: haisin_app_secret
+              name: haisin-app-secret
           - secretRef:
-              name: haisin_postgres_secret
+              name: haisin-postgres-secret
           - secretRef:
-              name: haisin_redis_secret
+              name: haisin-redis-secret
         ports:
           - containerPort: 8000
             name: app

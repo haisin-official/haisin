@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: haisin_redis_pv_claim
+  name: haisin-redis-pv-claim
   labels:
-    app: haisin_redis
+    app: haisin-redis
 spec:
   storageClassName: manual
   accessModes:
