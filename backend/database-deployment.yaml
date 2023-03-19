@@ -29,6 +29,8 @@ spec:
         volumeMounts:
           - mountPath: /var/lib/postgresql/data
             name: haisin-postgres-persistent-storage
+          - mountPath: /docker-entrypoint-initdb.d
+            name: haisin-postgres-cm
         resources:
           limits:
             memory: "4096Mi"
@@ -37,3 +39,7 @@ spec:
         - name: haisin-postgres-persistent-storage
           persistentVolumeClaim:
             claimName: haisin-postgres-pv-claim
+        - name: haisin-postgres-cm
+          configMap:
+            name: haisin-postgres-cm
+            defaultMode: 0755
