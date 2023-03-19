@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: haisin-migration
+  labels:
+    app: haisin-migration
+spec:
+  template:
+    metadata:
+      labels:
+        app: haisin-migration
+        tier: migrates
+    spec:
+      containers:
+      - name: haisin-migration
+        image: haisin-official/migration:k8s
+        imagePullPolicy: Never
+        envFrom:
+          - secretRef:
+              name: haisin-migration-secret
+        resources:
+          limits:
+            memory: "1024Mi"
+            cpu: "1000m"
+      restartPolicy: Never
+  backoffLimit: 4
