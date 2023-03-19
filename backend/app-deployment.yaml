@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: haisin_app
+  labels:
+    app: haisin_app
+spec:
+  selector:
+    matchLabels:
+      app: haisin_app
+      tier: app
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: haisin_app
+        tier: app
+    spec:
+      containers:
+      - name: haisin_app
+        image: haisin_official/backend:latest
+        imagePullPolicy: "IfNotPresent"
+        envFrom:
+          - secretRef:
+              name: haisin_app_secret
+          - secretRef:
+              name: haisin_postgres_secret
+        ports:
+          - containerPort: 8000
+            name: app
+            targetPort: 8000
+        resources:
+          limits:
+            memory: "1024Mi"
+            cpu: "1000m"
