@@ -5,9 +5,10 @@ metadata:
   labels:
     app: haisin-postgres
 spec:
-  type: NodePort
   ports:
-    - port: 5432
+    - name: haisin-postgres
+      protocol: TCP
+      port: 5432
       targetPort: 5432
   selector:
     app: haisin-postgres
