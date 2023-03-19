@@ -59,6 +59,7 @@ func NewSession(c *gin.Context, cKey string, v Store) {
 		log.Panicf("Fatal Error of Register Session 🚫 \n %v", err)
 	}
 
+	fmt.Println("new session 😎", cKey, token)
 	c.SetCookie(cKey, token, manager.MaxAge, manager.Path, manager.Domain, manager.Secure, manager.HttpOnly)
 }
 
