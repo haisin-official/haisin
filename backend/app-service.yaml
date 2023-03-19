@@ -5,9 +5,11 @@ metadata:
   labels:
     app: haisin-app
 spec:
-  type: NodePort
+  ports:
+    - name: haisin-app
+      protocol: TCP
+      port: 8000
+      targetPort: 8000
   selector:
     app: haisin-app
-  ports:
-  - port: 8000
-    targetPort: 8000
+    tier: app
