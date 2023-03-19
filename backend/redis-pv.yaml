@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: haisin_redis_pv
+  labels:
+    type: local
+    app: haisin_redis
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data/haisin/redis"
+  persistentVolumeReclaimPolicy: Retain
