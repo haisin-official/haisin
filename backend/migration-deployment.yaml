@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: haisin-migration
+  labels:
+    app: haisin-migration
+  spec:
+    selector:
+      matchLabels: haisin-migration
+      tier: postgres
+    replicas: 1
+    template:
+      metadata:
+        labels: haisin-migration
+        tier: migrates
+      spec:
+        containers:
+        - name: haisin-migration
+          image: haisin-official/migration:latest
+          imagePullPolicy: "IfNotPresent"
+          envFrom:
+            - secretRef:
+                name: haisin-migration-secret
+        resources:
+          limits:
+            memory: "1024Mi"
+            cpu: "1000m"
