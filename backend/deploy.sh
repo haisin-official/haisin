@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # build backend image
-docker build -t haisin-official/backend:latest -t haisin-official/backend:k8s -f docker/production/app/Dockerfile .
-docker build -t haisin-official/migration:latest -t haisin-official/migration:k8s -f docker/production/migration/Dockerfile .
+docker build -t haisin-official/backend:latest -t haisin-official/backend:v1 -f docker/production/app/Dockerfile .
+docker build -t haisin-official/migration:latest -t haisin-official/migration:v1 -f docker/production/migration/Dockerfile .
 
 # apply kubernetes
 kubectl delete -f database-secret.yaml
@@ -29,8 +29,8 @@ kubectl apply -f redis-deployment.yaml
 kubectl apply -f redis-service.yaml
 
 # Execute migrations
-kubectl apply -f migration-deployment.yaml
-kubectl apply -f migration-service.yaml
+kubectl delete -f migration-job.yaml
+kubectl apply -f migration-job.yaml
 
 # Execute golang apps
 kubectl apply -f app-deployment.yaml
