@@ -1,1 +1,1 @@
-go build -o main main.go
+GO_ENV=production go build -o main main.go
