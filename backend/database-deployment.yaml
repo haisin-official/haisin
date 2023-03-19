@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: haisin_database
+  name: haisin_postgres
   labels:
-    app: haisin_database
+    app: haisin_postgres
 spec:
   selector:
     matchLabels:

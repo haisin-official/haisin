@@ -12,5 +12,5 @@ spec:
   accessModes:
     - ReadWriteMany
   hostPath:
-    path: "/mnt/data/haisin/database"
+    path: "/mnt/data/haisin/postgres"
   persistentVolumeReclaimPolicy: Retain
