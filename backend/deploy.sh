@@ -1,10 +1,15 @@
 #!/bin/sh
 
 # build backend image
-docker build -t haisin-official/backend:latest -f docker/production/app/Dockerfile .
-docker push backend
+docker build -t haisin-official/backend:latest -t haisin-official/backend:k8s -f docker/production/app/Dockerfile .
+docker build -t haisin-official/migration:latest -t haisin-official/migration:k8s -f docker/production/migration/Dockerfile .
 
 # apply kubernetes
+kubectl delete -f database-secret.yaml
+kubectl delete -f redis-secret.yaml
+kubectl delete -f migration-secret.yaml
+kubectl delete -f app-secret.yaml
+
 kubectl apply -f database-secret.yaml
 kubectl apply -f redis-secret.yaml
 kubectl apply -f migration-secret.yaml
