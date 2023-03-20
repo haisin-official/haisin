@@ -1,8 +1,14 @@
 #!/bin/sh
 
+# eval $(minikube docker-env)
+
 # build backend image
 docker build -t haisin-official/backend:latest -t haisin-official/backend:v1 -f docker/production/app/Dockerfile .
 docker build -t haisin-official/migration:latest -t haisin-official/migration:v1 -f docker/production/migration/Dockerfile .
+
+# load images to minikube
+# minikube image load haisin-official/backend:v1
+# minikube image load haisin-official/migration:v1
 
 # apply kubernetes
 kubectl delete -f database-secret.yaml
@@ -35,3 +41,8 @@ kubectl apply -f migration-job.yaml
 # Execute golang apps
 kubectl apply -f app-deployment.yaml
 kubectl apply -f app-service.yaml
+
+# Apply ingress
+kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.9/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
+kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.9/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml
+kubectl apply -f app-ingress.yaml
