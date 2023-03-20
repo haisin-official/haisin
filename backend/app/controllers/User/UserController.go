@@ -3,12 +3,12 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	requests "github.com/haisin-official/haisin/app/requests/User"
 	usecases "github.com/haisin-official/haisin/app/usecases/User"
-	"github.com/haisin-official/haisin/config"
 	"github.com/haisin-official/haisin/config/session"
 )
 
@@ -17,7 +17,7 @@ type UserController struct{}
 // ログイン中のユーザーデータを取得
 func (UserController) UserMeGet(c *gin.Context) {
 
-	cKey := config.GetEnv("SESSION_KEY")
+	cKey := os.Getenv("SESSION_KEY")
 	data, httpCode, err := session.GetSession(c, cKey)
 	if err != nil {
 		fmt.Println(err)
@@ -53,7 +53,7 @@ func (UserController) UserMeGet(c *gin.Context) {
 
 // ログアウトする
 func (UserController) UserLogoutPost(c *gin.Context) {
-	cKey := config.GetEnv("SESSION_KEY")
+	cKey := os.Getenv("SESSION_KEY")
 	if err := session.DeleteSession(c, cKey); err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": http.StatusText(http.StatusInternalServerError)})

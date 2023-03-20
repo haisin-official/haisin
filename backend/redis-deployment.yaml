@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: haisin-redis
+  labels:
+    app: haisin-redis
+spec:
+  selector:
+    matchLabels:
+      app: haisin-redis
+      tier: redis
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: haisin-redis
+        tier: redis
+    spec:
+      containers:
+      - name: haisin-redis
+        image: redis:alpine
+        imagePullPolicy: IfNotPresent
+        envFrom:
+          - secretRef:
+              name: haisin-redis-secret
+        ports:
+          - containerPort: 6379
+            name: redis
+        volumeMounts:
+          - mountPath: /data
+            name: haisin-redis-persistent-storage
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+      volumes:
+        - name: haisin-redis-persistent-storage
+          persistentVolumeClaim:
+            claimName: haisin-redis-pv-claim

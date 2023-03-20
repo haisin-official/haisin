@@ -2,12 +2,12 @@ package contollers
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	requests "github.com/haisin-official/haisin/app/requests/OAuth"
 	usecases "github.com/haisin-official/haisin/app/usecases/OAuth"
 	"github.com/haisin-official/haisin/app/utils"
-	"github.com/haisin-official/haisin/config"
 	"github.com/haisin-official/haisin/config/session"
 )
 
@@ -39,11 +39,11 @@ func (OAuthController) CallbackPost(c *gin.Context) {
 	}
 
 	// 一度セッションを解除する
-	cKey := config.GetEnv("SESSION_KEY")
+	cKey := os.Getenv("SESSION_KEY")
 	session.DeleteSession(c, cKey)
 
 	// sessionにユーザーIDを保管
-	cKey = config.GetEnv("SESSION_KEY")
+	cKey = os.Getenv("SESSION_KEY")
 	data := session.Store{
 		SessionId: utils.GenRandToken(),
 		UserId:    result.User.Uuid.String(),

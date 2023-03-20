@@ -3,19 +3,19 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	requests "github.com/haisin-official/haisin/app/requests/Slug"
 	usecases "github.com/haisin-official/haisin/app/usecases/Slug"
-	"github.com/haisin-official/haisin/config"
 	"github.com/haisin-official/haisin/config/session"
 )
 
 type SlugController struct{}
 
 func (SlugController) SlugGet(c *gin.Context) {
-	cKey := config.GetEnv("SESSION_KEY")
+	cKey := os.Getenv("SESSION_KEY")
 	data, httpCode, err := session.GetSession(c, cKey)
 	if err != nil {
 		fmt.Println(err)
@@ -49,7 +49,7 @@ func (SlugController) SlugGet(c *gin.Context) {
 }
 
 func (SlugController) SlugPost(c *gin.Context) {
-	cKey := config.GetEnv("SESSION_KEY")
+	cKey := os.Getenv("SESSION_KEY")
 	data, httpCode, err := session.GetSession(c, cKey)
 	if err != nil {
 		fmt.Println(err)

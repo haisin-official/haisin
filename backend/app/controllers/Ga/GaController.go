@@ -3,19 +3,19 @@ package controllers
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	requests "github.com/haisin-official/haisin/app/requests/Ga"
 	usecases "github.com/haisin-official/haisin/app/usecases/Ga"
-	"github.com/haisin-official/haisin/config"
 	"github.com/haisin-official/haisin/config/session"
 )
 
 type GaController struct{}
 
 func (GaController) GaGet(c *gin.Context) {
-	cKey := config.GetEnv("SESSION_KEY")
+	cKey := os.Getenv("SESSION_KEY")
 	data, httpCode, err := session.GetSession(c, cKey)
 	if err != nil {
 		fmt.Println(err)
@@ -49,7 +49,7 @@ func (GaController) GaGet(c *gin.Context) {
 }
 
 func (GaController) GaPost(c *gin.Context) {
-	cKey := config.GetEnv("SESSION_KEY")
+	cKey := os.Getenv("SESSION_KEY")
 	data, httpCode, err := session.GetSession(c, cKey)
 
 	if err != nil {
@@ -93,7 +93,7 @@ func (GaController) GaPost(c *gin.Context) {
 }
 
 func (GaController) GaDelete(c *gin.Context) {
-	cKey := config.GetEnv("SESSION_KEY")
+	cKey := os.Getenv("SESSION_KEY")
 	data, httpCode, err := session.GetSession(c, cKey)
 	if err != nil {
 		fmt.Println(err)

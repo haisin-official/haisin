@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: haisin-app
+  labels:
+    app: haisin-app
+spec:
+  ports:
+    - name: haisin-app
+      protocol: TCP
+      port: 8080
+      targetPort: 8000
+  clusterIP: 10.104.49.74
+  type: LoadBalancer
+  selector:
+    app: haisin-app
+    tier: app

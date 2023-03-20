@@ -1,0 +1,4 @@
+tmp/
+.env
+.env.production
+*.yaml
