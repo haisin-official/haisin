@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: haisin-app
-        image: haisin-official/backend:v1
+        image: registry.nyao.me/library/haisin-backend:v1
         imagePullPolicy: IfNotPresent
         envFrom:
           - secretRef:
