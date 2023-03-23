@@ -10,7 +10,7 @@ metadata:
 
 spec:
   rules:
-    - host: hais.in
+    - host: localhost
       http:
         paths:
           - path: /
@@ -19,4 +19,4 @@ spec:
               service:
                 name: haisin-app
                 port:
-                  number: 8080
+                  number: 80
