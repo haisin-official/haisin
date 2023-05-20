@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: haisin-migration
-        image: haisin-official/migration:v1
+        image: registry.nyao.me/library/haisin-migration:v1
         imagePullPolicy: IfNotPresent
         command: ["/atlas", "migrate", "apply", "--url", "$(DB_URL)"]
         envFrom:

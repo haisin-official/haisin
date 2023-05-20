@@ -3,8 +3,11 @@
 # eval $(minikube docker-env)
 
 # build backend image
-docker build -t haisin-official/backend:latest -t haisin-official/backend:v1 -f docker/production/app/Dockerfile .
-docker build -t haisin-official/migration:latest -t haisin-official/migration:v1 -f docker/production/migration/Dockerfile .
+#docker build -t haisin-official/backend:latest -t haisin-official/backend:v1 -f docker/production/app/Dockerfile .
+#docker build -t haisin-official/migration:latest -t haisin-official/migration:v1 -f docker/production/migration/Dockerfile .
+
+# docker tag haisin-official/backend:v1 registry.nyao.me/library/haisin-official/backend:v1
+# docker tag haisin-official/migration:v1 registry.nyao.me/library/haisin-official/migration:v1
 
 # load images to minikube
 # minikube image load haisin-official/backend:v1
