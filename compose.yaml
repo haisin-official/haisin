@@ -1,8 +1,9 @@
 version: '3.8'
 
 services:
-  backend:
-    container_name: haisin_backend
-    build:
-      context: ./
-      dockerfile: Dockerfile.dev
+  server:
+    container_name: haisin_server
+  db:
+    container_name: haisin_db
+  redis:
+    container_name: haisin_redis

@@ -11,7 +11,7 @@ dev:
 
 .PHONY: bash
 bash:
-	docker compose exec frontend bash
+	docker compose exec backend bash
 
 .PHONY: down
 down:

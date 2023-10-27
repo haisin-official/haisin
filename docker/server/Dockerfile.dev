@@ -7,8 +7,8 @@ RUN set -eux; \
 RUN set -eux; \
     go install github.com/cosmtrek/air@latest
 
-RUN mkdir -p /go/app
+RUN mkdir -p /app/server
 
-WORKDIR /go/app
+WORKDIR /app/server
 
 CMD ["air", "main.go"]

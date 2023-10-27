@@ -6,9 +6,23 @@ services:
       dockerfile: ./docker/server/Dockerfile.dev
     volumes:
       - ./app/server:/app/server
+    ports:
+      - 8080:8080
   db:
     build:
       dockerfile: ./docker/db/Dockerfile.dev
+    env_file:
+      - ./docker/db/mysql.dev.env
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - 3306:3306
   redis:
     build:
       dockerfile: ./docker/redis/Dockerfile.dev
+    ports:
+      - 6379:6379
+
+volumes:
+  mysql_data:
+    name: mysql_data
