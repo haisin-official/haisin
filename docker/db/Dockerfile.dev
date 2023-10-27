@@ -1,0 +1,11 @@
+FROM mysql:8
+
+# Set environment variables
+# It should be override by compose.yml !!!
+ENV MYSQL_ROOT_PASSWORD=root
+ENV MYSQL_DATABASE=mydb
+ENV MYSQL_USER=myuser
+ENV MYSQL_PASSWORD=mypass
+
+# Copy SQL script to initialize database
+COPY ./docker/db/init.sql /docker-entrypoint-initdb.d/

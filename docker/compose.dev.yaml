@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  server:
+    build:
+      dockerfile: ./docker/server/Dockerfile.dev
+    volumes:
+      - ./app/server:/app/server
+  landing:
+    build:
+      dockerfile: ./docker/landing/Dockerfile.dev
+    volumes:
+      - ./app/landing:/app/landing
