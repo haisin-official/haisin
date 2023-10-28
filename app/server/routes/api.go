@@ -14,7 +14,7 @@ import (
 
 func Router(router *gin.Engine) {
 	v1 := router.Group("api/v1")
-	v1.Use(middleware.Ajax())
+	// v1.Use(middleware.Ajax())
 
 	oauth := v1.Group("/oauth/google")
 	{
