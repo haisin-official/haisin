@@ -8,17 +8,17 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
+      - mysql
       - redis
     volumes:
       - ./app/server:/app/server
     ports:
       - 8080:8080
-  db:
+  mysql:
     build:
-      dockerfile: ./docker/db/Dockerfile.dev
+      dockerfile: ./docker/mysql/Dockerfile.dev
     env_file:
-      - ./docker/db/mysql.dev.env
+      - .env
     volumes:
       - mysql_data:/var/lib/mysql
     ports:

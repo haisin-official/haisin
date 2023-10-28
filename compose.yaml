@@ -3,7 +3,7 @@ version: '3.8'
 services:
   server:
     container_name: haisin_server
-  db:
-    container_name: haisin_db
+  mysql:
+    container_name: haisin_mysql
   redis:
     container_name: haisin_redis
